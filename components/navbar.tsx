@@ -17,8 +17,13 @@ import clsx from "clsx";
 
 import Image from "next/image";
 
+import { FaFacebook } from 'react-icons/fa';
+import { FaInstagram } from 'react-icons/fa';
+import { FaSearch } from 'react-icons/fa';
+
 import { siteConfig } from "@/config/site";
 import { ThemeSwitch } from "@/components/theme-switch";
+import {SparklesPreview} from "@/components/SparklesPreview"
 import {
   TwitterIcon,
   GithubIcon,
@@ -33,7 +38,7 @@ export const Navbar = () => {
     <Input
       aria-label="Search"
       classNames={{
-        inputWrapper: "bg-default-100",
+        inputWrapper: "bg-default-100 border border-cyan-700 hover:border-lime-700 border-2", // Add border color here
         input: "text-sm",
       }}
       endContent={
@@ -44,23 +49,27 @@ export const Navbar = () => {
       labelPlacement="outside"
       placeholder="Search..."
       startContent={
-        <SearchIcon className="text-base text-default-400 pointer-events-none flex-shrink-0" />
+        <FaSearch className="text-base text-default-400 pointer-events-none flex-shrink-0" />
       }
       type="search"
     />
+
   );
 
   return (
     <NextUINavbar maxWidth="xl" position="sticky" className="bg-transparent backdrop-blur-md py-2 md:py-4 rounded-2xl shadow-md shadow-cyan-700 hover:shadow-lime-700">
       <NavbarContent className="basis-1/5 sm:basis-full" justify="start">
         <NavbarBrand as="li" className="gap-3 max-w-fit">
-          <NextLink className="flex justify-start items-center gap-1" href="/">
-            <Image src={"/logo.png"} alt={"logo"} width={90} height={90}></Image>
-            <p className="font-bold text-inherit text-lg">TeaBridge</p>
+          <NextLink className="flex justify-start items-center gap-0" href="/">
+            <Image src={"/logo.png"} alt={"logo"} width={90} height={90} className="w-20  lg:w-24 "></Image>
+            <p className="font-bold text-inherit text-2xl hidden md:block"><span className="dark:text-green-500 text-green-700">Tea</span><span className=" dark:text-lime-700 text-lime-900">Bridge</span></p>
           </NextLink>
         </NavbarBrand>
+        <NextLink href={"/"} className="flex justify-center">
+          <p className="font-bold text-inherit text-xl text-center md:hidden"><span className="dark:text-green-500 text-green-700">Tea</span><span className=" dark:text-lime-700 text-lime-900">Bridge</span></p>
+          </NextLink>
 
-        <ul className="hidden lg:flex gap-6 ml-2">
+        <ul className="hidden lg:flex gap-6 ml-20">
           {siteConfig.navItems.map((item) => (
             <NavbarItem key={item.href}>
               <NextLink
@@ -80,10 +89,10 @@ export const Navbar = () => {
       <NavbarContent className="hidden sm:flex basis-1/5 sm:basis-full" justify="end">
         <NavbarItem className="hidden sm:flex gap-4">
           <Link isExternal aria-label="Twitter" href={siteConfig.links.twitter}>
-            <TwitterIcon className="text-default-500 text-xl" />
+            <FaInstagram className="text-default-500 text-xl" />
           </Link>
-          <Link isExternal aria-label="Discord" href={siteConfig.links.discord}>
-            <DiscordIcon className="text-default-500 text-xl" />
+          <Link isExternal aria-label="Facebook" href={siteConfig.links.facebook}>
+            <FaFacebook className="text-default-500 text-xl" />
           </Link>
           <Link isExternal aria-label="Github" href={siteConfig.links.github}>
             <GithubIcon className="text-default-500 text-xl" />
@@ -97,10 +106,10 @@ export const Navbar = () => {
             as={Link}
             className="text-sm font-normal text-default-600 bg-default-100"
             href={siteConfig.links.sponsor}
-            startContent={<HeartFilledIcon className="text-danger" />}
+            // startContent={<HeartFilledIcon className="text-danger" />}
             variant="flat"
           >
-            Sponsor
+            sign in
           </Button>
         </NavbarItem>
       </NavbarContent>
@@ -117,7 +126,7 @@ export const Navbar = () => {
         {searchInput}
         <div className="mx-4 mt-2 flex flex-col gap-4">
           {siteConfig.navMenuItems.map((item, index) => (
-            <NavbarMenuItem key={`${item}-${index}`}>
+            <NavbarMenuItem key={item.href}>
               <Link
                 color={
                   index === 2
@@ -126,7 +135,7 @@ export const Navbar = () => {
                     ? "danger"
                     : "foreground"
                 }
-                href="#"
+                href={item.href}
                 size="lg"
                 className="text-lg"
               >
