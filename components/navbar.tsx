@@ -69,13 +69,13 @@ export const Navbar = () => {
           <p className="font-bold text-inherit text-xl text-center md:hidden"><span className="dark:text-green-500 text-green-700">Tea</span><span className=" dark:text-lime-700 text-lime-900">Bridge</span></p>
           </NextLink>
 
-        <ul className="hidden lg:flex gap-6 ml-20">
+        <ul className="hidden lg:flex gap-6 ml-20 border-collapse border-2 px-4 py-2 rounded-full border-cyan-600 hover:border-lime-600 font-medium">
           {siteConfig.navItems.map((item) => (
             <NavbarItem key={item.href}>
               <NextLink
                 className={clsx(
                   linkStyles({ color: "foreground" }),
-                  "data-[active=true]:text-primary data-[active=true]:font-medium text-lg",
+                  "data-[active=true]:text-primary data-[active=true]:font-medium text-lg hover:text-green-900 dark:hover:text-green-300 ",
                 )}
                 href={item.href}
               >
@@ -104,7 +104,7 @@ export const Navbar = () => {
           <Button
             isExternal
             as={Link}
-            className="text-sm font-normal text-default-600 bg-default-100"
+            className="text-md font-semibold shadow-md border-2  text-cyan-950 border-cyan-700 hover:text-green-950 hover:shadow-lime-600 hover:border-lime-700 shadow-cyan-600 dark:bg-transparent dark:text-cyan-700  dark:shadow-cyan-300  dark:border-cyan-300 dark:hover:text-green-700  dark:hover:shadow-lime-300  dark:hover:border-lime-300"
             href={siteConfig.links.sponsor}
             // startContent={<HeartFilledIcon className="text-danger" />}
             variant="flat"

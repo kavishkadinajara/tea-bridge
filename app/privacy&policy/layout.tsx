@@ -1,6 +1,6 @@
 import { SparklesPreview } from "@/components/SparklesPreview";
 
-export default function AboutLayout({
+export default function PrivacyPolicytLayout({
   children,
 }: {
   children: React.ReactNode;
