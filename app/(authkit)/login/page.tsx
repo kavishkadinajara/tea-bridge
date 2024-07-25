@@ -72,9 +72,9 @@ export default function LoginPage({ status }: { status: string }) {
                   </SelectItem>
                 ))}
               </Select>
-              <h2 className="text-white text-sm font-semibold mb-2 text-center">Login with</h2>
+              {/* <h2 className="text-white text-sm font-semibold mb-2 text-center">Login with</h2>
               <GoogleButton/>
-              <h2 className='text-center font-semibold'>or</h2>
+              <h2 className='text-center font-semibold'>or</h2> */}
               <form>
                 {/* Email input */}
                 <div className="mt-4">
@@ -131,16 +131,16 @@ export default function LoginPage({ status }: { status: string }) {
 
             {/* Second card for login */}
             <div className={clsx(
-              "p-8 rounded-2xl shadow-lg shadow-cyan-600 hover:shadow-lime-500 w-full max-w-sm  relative hidden",
+              "p-8 rounded-2xl shadow-lg shadow-cyan-600 hover:shadow-lime-500 w-full max-w-sm  relative",
               {
                 "scale-80 z-0 right-16": authCard === "Sign Up",
                 "scale-100 z-20 right-32 bg-green-100 dark:bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#0a0015] via-[#00150e] to-black": authCard === "Sign In"
               }
             )}>
 
-              <h2 className="text-white text-sm font-semibold mb-2 text-center">Login with</h2>
+              {/* <h2 className="text-white text-sm font-semibold mb-2 text-center">Login with</h2>
               <GoogleButton/>
-              <h2 className='text-center font-semibold'>or</h2>
+              <h2 className='text-center font-semibold'>or</h2> */}
               <form>
                 {/* Email input */}
                 <div className="mt-4">
