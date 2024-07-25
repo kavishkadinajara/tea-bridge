@@ -46,10 +46,10 @@ export const siteConfig = {
       label: "About",
       href: "/about",
      },
-    // {
-    //   label: "Settings",
-    //   href: "/settings",
-    // },
+    {
+      label: "Login",
+      href: "/login",
+    },
     // {
     //   label: "Help & Feedback",
     //   href: "/help-feedback",
@@ -64,6 +64,6 @@ export const siteConfig = {
     twitter: "https://twitter.com/getnextui",
     docs: "https://nextui.org",
     facebook: "https://www.facebook.com/share/NV4sYebr2gHVr1Lu/?mibextid=LQQJ4d",
-    sponsor: "https://patreon.com/jrgarciadev",
+    login: "/login",
   },
 };

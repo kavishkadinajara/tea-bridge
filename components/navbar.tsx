@@ -102,14 +102,14 @@ export const Navbar = () => {
         <NavbarItem className="hidden lg:flex">{searchInput}</NavbarItem>
         <NavbarItem className="hidden md:flex">
           <Button
-            isExternal
+            // isExternal
             as={Link}
             className="text-md font-semibold shadow-md border-2  text-cyan-950 border-cyan-700 hover:text-green-950 hover:shadow-lime-600 hover:border-lime-700 shadow-cyan-600 dark:bg-transparent dark:text-cyan-700  dark:shadow-cyan-300  dark:border-cyan-300 dark:hover:text-green-700  dark:hover:shadow-lime-300  dark:hover:border-lime-300"
-            href={siteConfig.links.sponsor}
+            href={siteConfig.links.login}
             // startContent={<HeartFilledIcon className="text-danger" />}
             variant="flat"
           >
-            sign in
+            Login
           </Button>
         </NavbarItem>
       </NavbarContent>

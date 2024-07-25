@@ -34,7 +34,6 @@ export default function AboutPage() {
       
         <SparklesPreview>
           <Vission_Mission />
-        </SparklesPreview>
         <ScrollAnimation>
         <WhoWEAre />
       </ScrollAnimation>
@@ -47,6 +46,7 @@ export default function AboutPage() {
       <ScrollAnimation>
         <OurCommitment />
       </ScrollAnimation>
+      </SparklesPreview>
     </div>
   );
 }
@@ -93,7 +93,7 @@ function ScrollAnimation({ children }: ScrollAnimationProps) {
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, y: 30, scale: 0.98 }} // Adjusted initial values
+      initial={{ opacity: 0, y: 30, scale: 1 }} // Adjusted initial values
       animate={controls}
       transition={{ duration: 0.8, ease: "easeOut" }} // Smoother transition
     >

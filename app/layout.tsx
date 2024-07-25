@@ -9,7 +9,7 @@ import '@/styles/scrollbar.css';
 
 import { siteConfig } from "@/config/site";
 import { fontSans } from "@/config/fonts";
-import { Navbar } from "@/components/navbar";
+// import { Navbar } from "@/components/navbar";
 import { I18nextProvider } from 'react-i18next';
 // import i18n from "@/lib/i18n";
 // import "@/lib/i18n";
@@ -49,8 +49,8 @@ export default function RootLayout({
       >
         <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
           <div className="relative flex flex-col">
-            <Navbar />
-            <main className="container mx-auto max-w-7xl pt-16 px-6 flex-grow">
+            {/* <Navbar /> */}
+            <main className="">
               {children}
             </main>
           </div>

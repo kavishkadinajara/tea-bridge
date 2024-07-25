@@ -8,10 +8,13 @@ import { title, subtitle } from "@/components/primitives";
 import { GithubIcon } from "@/components/icons";
 import { Counter } from "@/components/counter";
 import ColorPatch from "@/components/ColorPatch"
+import { Navbar } from "@/components/navbar";
 
 export default function Home() {
   return (
-    <section className="flex flex-col items-center justify-center gap-4 py-8 md:py-10">
+    <>
+    <Navbar />
+      <section className="flex flex-col items-center justify-center gap-4 py-8 md:py-10">
       <ColorPatch/>
       <div className="inline-block max-w-lg text-center justify-center">
         <h1 className={title()}>Make&nbsp;</h1>
@@ -57,5 +60,6 @@ export default function Home() {
       </div>
       <Counter/>
     </section>
+    </>
   );
 }
