@@ -34,7 +34,7 @@ export default function LoginHero() {
                 duration: 1,
                 ease: "easeInOut",
               }}
-              className=" bg-gradient-conic from-lime-500 via-transparent to-transparent py-2 bg-clip-text text-center text-xl font-medium tracking-tight text-transparent md:text-3xl z-10 text-lime-500 hover:text-green-700 transition-colors duration-300"
+              className=" bg-gradient-conic from-lime-500 via-transparent to-transparent py-2 bg-clip-text text-center text-xl font-medium tracking-tight text-transparent md:text-3xl z-10 text-white hover:text-green-700 transition-colors duration-300"
             >
               CONNECTING TEA INDUSTRY
             </motion.h2>
