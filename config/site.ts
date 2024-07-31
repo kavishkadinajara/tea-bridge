@@ -45,7 +45,7 @@ export const siteConfig = {
     {
       label: "About",
       href: "/about",
-     },
+    },
     {
       label: "Login",
       href: "/login",
@@ -63,7 +63,8 @@ export const siteConfig = {
     github: "https://github.com/nextui-org/nextui",
     twitter: "https://twitter.com/getnextui",
     docs: "https://nextui.org",
-    facebook: "https://www.facebook.com/share/NV4sYebr2gHVr1Lu/?mibextid=LQQJ4d",
+    facebook:
+      "https://www.facebook.com/share/NV4sYebr2gHVr1Lu/?mibextid=LQQJ4d",
     login: "/login",
   },
 };
