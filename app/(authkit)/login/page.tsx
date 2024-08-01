@@ -1,31 +1,123 @@
 /* eslint-disable react/no-unescaped-entities */
+/* eslint-disable no-console */
 "use client";
 
-// Import necessary modules and components
 import { FaEye, FaEyeSlash, FaEnvelope, FaLock } from "react-icons/fa";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
 import { Input } from "@nextui-org/input";
-import React, { useState } from "react";
+import React, { FormEvent, useState } from "react";
 import clsx from "clsx";
 import { Select, SelectItem } from "@nextui-org/react";
+import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
+import { signIn } from "next-auth/react";
 
 import LoginHero from "@/components/LoginHero";
 import { SelectorIcon } from "@/components/SelectorIcon";
 import { userType } from "@/config/data";
 
-// Define the LoginPage component
 export default function LoginPage({}: { status: string }) {
-  // State to manage password visibility
-  const [isVisible, setIsVisible] = React.useState(false);
-  const toggleVisibilityR = () => setIsVisible(!isVisible);
-  const toggleVisibilityL = () => setIsVisible(!isVisible);
+  const router = useRouter();
 
-  // Initialize the state for authCard
+  async function createAccount(event: FormEvent) {
+    event.preventDefault();
+    const formData = new FormData(event.target as HTMLFormElement);
+
+    try {
+      toast.dismiss();
+      await toast.promise(
+        new Promise(async (resolve, reject) => {
+          const response = await fetch("/api/auth/register", {
+            method: "POST",
+            body: JSON.stringify({
+              userType: formData.get("userType"),
+              userName: formData.get("userNameR"),
+              password: formData.get("passwordR"),
+            }),
+          });
+
+          if (!response.ok) {
+            throw new Error("Failed to create account");
+          }
+
+          const responseData = await response.json();
+
+          console.log(responseData);
+          if (responseData.message == "success") {
+            router.push("/login");
+            router.refresh();
+            resolve(response); // Resolve the promise if sign-in is successful
+          } else {
+            reject(new Error(responseData.error));
+          }
+        }),
+        {
+          loading: "Creating account...",
+          success: "Account created successfully!",
+          error: "Account creation failed",
+        },
+      );
+    } catch (error) {
+      console.error(error);
+      toast.error("Account creation failed");
+    }
+  }
+
+  async function handleLogin(event: FormEvent) {
+    event.preventDefault();
+    const formData = new FormData(event.target as HTMLFormElement);
+
+    try {
+      toast.dismiss();
+      await toast.promise(
+        new Promise(async (resolve, reject) => {
+          const response = await signIn("credentials", {
+            email: formData.get("userNameL"),
+            password: formData.get("passwordL"),
+            redirect: false,
+          });
+
+          console.log({ response });
+
+          if (!response?.error) {
+            // Redirect user to the home page if sign-in is successful
+            router.push("/");
+            router.refresh();
+            resolve(response); // Resolve the promise if sign-in is successful
+          } else {
+            // Reject the promise if there's an error during sign-in
+            if (response.status == 401) {
+              reject(new Error("Incorrect username or password"));
+            }
+            reject(new Error(response.error));
+          }
+        }),
+        {
+          loading: "Signing in...",
+          success: "Signed in successfully!",
+          error: (err) => `${err.message}`,
+        },
+        {
+          style: {
+            minWidth: "250px",
+          },
+        },
+      );
+    } catch (error) {
+      console.error((error as Error).message);
+    }
+  }
+
+  const [isVisibleR, setIsVisibleR] = useState(false);
+  const [isVisibleL, setIsVisibleL] = useState(false);
+
+  const toggleVisibilityR = () => setIsVisibleR(!isVisibleR);
+  const toggleVisibilityL = () => setIsVisibleL(!isVisibleL);
+
   const [authCard, setAuthCard] = useState("Sign In");
 
-  // Function to toggle between "Sign In" and "Sign Up"
   function toggleTwoAuth() {
     setAuthCard((prevAuthCard) =>
       prevAuthCard === "Sign In" ? "Sign Up" : "Sign In",
@@ -34,15 +126,12 @@ export default function LoginPage({}: { status: string }) {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 w-full justify-center items-center space-x-12">
-      {/* Left section with a hero image, visible only on large screens */}
       <div className="hidden lg:block lg:col-span-1">
         <LoginHero />
       </div>
 
-      {/* Right section with the login form */}
       <div className="flex flex-col justify-center items-center min-h-[680px] mt-4">
         <div className="lg:col-span-1 md:shadow-lg p-6 w-full md:shadow-cyan-600 md:hover:shadow-lime-500 rounded-3xl">
-          {/* Logo and heading */}
           <div className="flex justify-center md:mb-4">
             <Link href={"/"}>
               <Image
@@ -59,9 +148,7 @@ export default function LoginPage({}: { status: string }) {
             <br />
           </div>
 
-          {/* Container for both login methods */}
           <div className="flex justify-center items-center">
-            {/* First card for register */}
             <div className="flex justify-center items-center">
               <motion.div
                 animate={{
@@ -79,33 +166,37 @@ export default function LoginPage({}: { status: string }) {
                 )}
                 transition={{ duration: 0.5 }}
               >
-                <form>
+                <form onSubmit={createAccount}>
                   <Select
                     disableSelectorIconRotation
                     className="max-w-xs"
                     disabled={authCard === "Sign In"}
+                    id="userType"
                     label="User Type"
                     labelPlacement="outside"
+                    name="userType"
                     placeholder="Select who are you?"
                     selectorIcon={<SelectorIcon />}
                   >
-                    {userType.map((userType) => (
+                    {userType.map((user) => (
                       <SelectItem
-                        key={userType.key}
+                        key={user.key}
                         isDisabled={authCard === "Sign In"}
+                        value={user.key}
                       >
-                        {userType.label}
+                        {user.label}
                       </SelectItem>
                     ))}
                   </Select>
                   <br />
 
-                  {/* Email input */}
                   <div className="mt-5">
                     <Input
                       disabled={authCard === "Sign In"}
+                      id="userNameR"
                       label="Email"
                       labelPlacement="outside"
+                      name="userNameR"
                       placeholder="you@example.com"
                       startContent={<FaEnvelope className="text-default-400" />}
                       type="email"
@@ -113,7 +204,6 @@ export default function LoginPage({}: { status: string }) {
                   </div>
                   <br />
 
-                  {/* Password input */}
                   <div className="mt-5">
                     <Input
                       className="md:w-[300px] w-[225px]"
@@ -124,33 +214,24 @@ export default function LoginPage({}: { status: string }) {
                           className="focus:outline-none"
                           type="button"
                           onClick={toggleVisibilityR}
-                          // disabled={authCard === "Sign In"}
                         >
-                          {isVisible ? (
+                          {isVisibleR ? (
                             <FaEyeSlash className="text-2xl text-default-400 pointer-events-none" />
                           ) : (
                             <FaEye className="text-2xl text-default-400 pointer-events-none" />
                           )}
                         </button>
                       }
+                      id="passwordR"
                       label="Password"
                       labelPlacement="outside"
+                      name="passwordR"
                       placeholder="Enter your password"
                       startContent={<FaLock className="text-default-400" />}
-                      type={isVisible ? "text" : "password"}
+                      type={isVisibleR ? "text" : "password"}
                     />
                   </div>
-                  {/* <div className="flex justify-center">
-                    <button
-                      className={clsx("text-cyan-600 text-sm mt-4 hover:text-lime-600 text-center", {
-                        "pointer-events-none opacity-50": authCard === "Sign In"
-                      })}
-                      disabled={authCard === "Sign In"}
-                    >
-                      Forgot your password?
-                    </button>
-                  </div> */}
-                  {/* Submit button */}
+
                   <div className="flex justify-center">
                     <button
                       className={clsx(
@@ -167,7 +248,6 @@ export default function LoginPage({}: { status: string }) {
                     </button>
                   </div>
                 </form>
-                {/* Register link */}
                 <div className="flex justify-center">
                   <button
                     className="text-cyan-600 hover:text-lime-600 mt-4 text-center"
@@ -180,7 +260,6 @@ export default function LoginPage({}: { status: string }) {
               </motion.div>
             </div>
 
-            {/* Second card for login */}
             <div className="flex justify-center items-center">
               <motion.div
                 animate={{
@@ -191,26 +270,26 @@ export default function LoginPage({}: { status: string }) {
                   "p-8 rounded-2xl shadow-lg shadow-cyan-600 hover:shadow-lime-500 w-full max-w-sm relative",
                   {
                     "right-28 blur-[2px] z-0": authCard === "Sign Up",
-                    "right-40 md:right-32 bg-green-100 dark:bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#0a0015] via-[#00150e] to-black z-30":
+                    "right-40 md:right-32 bg-green-100 dark:bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#0a0015] via-[#00150e] to-black z-20":
                       authCard === "Sign In",
                   },
                 )}
                 transition={{ duration: 0.5 }}
               >
-                <form>
-                  {/* Email input */}
-                  <div className="mt-4">
+                <form onSubmit={handleLogin}>
+                  <div className="mt-5">
                     <Input
                       disabled={authCard === "Sign Up"}
+                      id="userNameL"
                       label="Email"
                       labelPlacement="outside"
+                      name="userNameL"
                       placeholder="you@example.com"
                       startContent={<FaEnvelope className="text-default-400" />}
                       type="email"
                     />
                   </div>
                   <br />
-                  {/* Password input */}
                   <div className="mt-6">
                     <Input
                       className="md:w-[300px] w-[225px]"
@@ -221,20 +300,21 @@ export default function LoginPage({}: { status: string }) {
                           className="focus:outline-none"
                           type="button"
                           onClick={toggleVisibilityL}
-                          // disabled={authCard === "Sign Up"}
                         >
-                          {isVisible ? (
+                          {isVisibleL ? (
                             <FaEyeSlash className="text-2xl text-default-400 pointer-events-none" />
                           ) : (
                             <FaEye className="text-2xl text-default-400 pointer-events-none" />
                           )}
                         </button>
                       }
+                      id="passwordL"
                       label="Password"
                       labelPlacement="outside"
+                      name="passwordL"
                       placeholder="Enter your password"
                       startContent={<FaLock className="text-default-400" />}
-                      type={isVisible ? "text" : "password"}
+                      type={isVisibleL ? "text" : "password"}
                     />
                   </div>
                   <div className="flex justify-center">
@@ -251,7 +331,6 @@ export default function LoginPage({}: { status: string }) {
                       Forgot your password?
                     </button>
                   </div>
-                  {/* Submit button */}
                   <div className="flex justify-center">
                     <button
                       className={clsx(
@@ -268,7 +347,6 @@ export default function LoginPage({}: { status: string }) {
                     </button>
                   </div>
                 </form>
-                {/* Login link */}
                 <div className="flex justify-center">
                   <button
                     className="text-cyan-600 hover:text-lime-600 mt-4 text-center"
