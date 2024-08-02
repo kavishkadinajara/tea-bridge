@@ -21,9 +21,27 @@ import { userType } from "@/config/data";
 export default function LoginPage({}: { status: string }) {
   const router = useRouter();
 
+  // Function to generate a user ID
+  function generateUserId(length: number): string {
+    const chars =
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    let userId = "";
+
+    for (let i = 0; i < length; i++) {
+      const randomIndex = Math.floor(Math.random() * chars.length);
+
+      userId += chars[randomIndex];
+    }
+
+    return userId;
+  }
+
+  // Function to create an account
   async function createAccount(event: FormEvent) {
     event.preventDefault();
     const formData = new FormData(event.target as HTMLFormElement);
+    const userIdLength = Math.floor(Math.random() * 4) + 6; // Generate length between 6 and 9
+    const userId = generateUserId(userIdLength);
 
     try {
       toast.dismiss();
@@ -31,7 +49,11 @@ export default function LoginPage({}: { status: string }) {
         new Promise(async (resolve, reject) => {
           const response = await fetch("/api/auth/register", {
             method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
             body: JSON.stringify({
+              userId: userId,
               userType: formData.get("userType"),
               userName: formData.get("userNameR"),
               password: formData.get("passwordR"),
@@ -39,16 +61,20 @@ export default function LoginPage({}: { status: string }) {
           });
 
           if (!response.ok) {
-            throw new Error("Failed to create account");
+            const errorResponse = await response.json();
+
+            reject(
+              new Error(errorResponse.error || "Failed to create account"),
+            );
+
+            return;
           }
 
           const responseData = await response.json();
 
           console.log(responseData);
           if (responseData.message == "success") {
-            router.push("/login");
-            router.refresh();
-            resolve(response); // Resolve the promise if sign-in is successful
+            resolve(response); // Resolve the promise if account creation is successful
           } else {
             reject(new Error(responseData.error));
           }
@@ -65,6 +91,7 @@ export default function LoginPage({}: { status: string }) {
     }
   }
 
+  // LOGIN HANDLING
   async function handleLogin(event: FormEvent) {
     event.preventDefault();
     const formData = new FormData(event.target as HTMLFormElement);
