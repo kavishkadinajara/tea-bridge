@@ -9,6 +9,7 @@
 		"lint": "eslint . --ext .ts,.tsx -c .eslintrc.json --fix"
 	},
 	"dependencies": {
+		"@internationalized/date": "^3.5.5",
 		"@next-auth/prisma-adapter": "^1.0.7",
 		"@nextui-org/button": "2.0.34",
 		"@nextui-org/code": "2.0.29",
