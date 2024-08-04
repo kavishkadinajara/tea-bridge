@@ -14,128 +14,13 @@ import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { signIn } from "next-auth/react";
 
+import { supabase } from "@/lib/supabaseClient"; // Ensure this is the correct path to your supabaseClient.js
 import LoginHero from "@/components/LoginHero";
 import { SelectorIcon } from "@/components/SelectorIcon";
 import { userType } from "@/config/data";
 
 export default function LoginPage({}: { status: string }) {
   const router = useRouter();
-
-  // Function to generate a user ID
-  function generateUserId(length: number): string {
-    const chars =
-      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    let userId = "";
-
-    for (let i = 0; i < length; i++) {
-      const randomIndex = Math.floor(Math.random() * chars.length);
-
-      userId += chars[randomIndex];
-    }
-
-    return userId;
-  }
-
-  // Function to create an account
-  async function createAccount(event: FormEvent) {
-    event.preventDefault();
-    const formData = new FormData(event.target as HTMLFormElement);
-    const userIdLength = Math.floor(Math.random() * 4) + 6; // Generate length between 6 and 9
-    const userId = generateUserId(userIdLength);
-
-    try {
-      toast.dismiss();
-      await toast.promise(
-        new Promise(async (resolve, reject) => {
-          const response = await fetch("/api/auth/register", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              userId: userId,
-              userType: formData.get("userType"),
-              userName: formData.get("userNameR"),
-              password: formData.get("passwordR"),
-            }),
-          });
-
-          if (!response.ok) {
-            const errorResponse = await response.json();
-
-            reject(
-              new Error(errorResponse.error || "Failed to create account"),
-            );
-
-            return;
-          }
-
-          const responseData = await response.json();
-
-          console.log(responseData);
-          if (responseData.message == "success") {
-            resolve(response); // Resolve the promise if account creation is successful
-          } else {
-            reject(new Error(responseData.error));
-          }
-        }),
-        {
-          loading: "Creating account...",
-          success: "Account created successfully!",
-          error: "Account creation failed",
-        },
-      );
-    } catch (error) {
-      console.error(error);
-      toast.error("Account creation failed");
-    }
-  }
-
-  // LOGIN HANDLING
-  async function handleLogin(event: FormEvent) {
-    event.preventDefault();
-    const formData = new FormData(event.target as HTMLFormElement);
-
-    try {
-      toast.dismiss();
-      await toast.promise(
-        new Promise(async (resolve, reject) => {
-          const response = await signIn("credentials", {
-            email: formData.get("userNameL"),
-            password: formData.get("passwordL"),
-            redirect: false,
-          });
-
-          console.log({ response });
-
-          if (!response?.error) {
-            // Redirect user to the home page if sign-in is successful
-            router.push("/");
-            router.refresh();
-            resolve(response); // Resolve the promise if sign-in is successful
-          } else {
-            // Reject the promise if there's an error during sign-in
-            if (response.status == 401) {
-              reject(new Error("Incorrect username or password"));
-            }
-            reject(new Error(response.error));
-          }
-        }),
-        {
-          loading: "Signing in...",
-          success: "Signed in successfully!",
-          error: (err) => `${err.message}`,
-        },
-        {
-          style: {
-            minWidth: "250px",
-          },
-        },
-      );
-    } catch (error) {
-      console.error((error as Error).message);
-    }
-  }
 
   const [isVisibleR, setIsVisibleR] = useState(false);
   const [isVisibleL, setIsVisibleL] = useState(false);
@@ -150,6 +35,75 @@ export default function LoginPage({}: { status: string }) {
       prevAuthCard === "Sign In" ? "Sign Up" : "Sign In",
     );
   }
+
+  const [formData, setFormData] = useState({
+    userType: "",
+    email: "",
+    password: "",
+  });
+
+  const handleChange = (e: { target: { name: any; value: any } }) => {
+    const { name, value } = e.target;
+
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+  };
+
+  const createAccount = async (e: FormEvent) => {
+    e.preventDefault();
+    const { email, password, userType } = formData;
+    const { data, error } = await supabase.auth.signUp({
+      email: email,
+      password: password,
+      options: {
+        data: {
+          userType: userType,
+        },
+      },
+    });
+
+    if (error) {
+      console.error("Error signing up:", error.message);
+      toast.error("Error signing up");
+    } else {
+      console.log("User signed up:", data);
+      toast.success("Account created successfully!");
+      setAuthCard("Sign In");
+    }
+  };
+
+  const handleLogin = async (e: FormEvent) => {
+    e.preventDefault();
+    const { email, password } = formData;
+
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email,
+        password: password,
+      });
+
+      if (error) {
+        console.error("Error signing in:", error.message);
+        toast.error("Error signing in");
+
+        return; // Exit the function early if there's an error
+      }
+
+      console.log("User signed in:", data);
+      toast.success("Logged in successfully!");
+
+      if (data?.user?.user_metadata?.userType === "tea_provider") {
+        router.push("/");
+      } else {
+        router.push("/dashboard"); // Redirect to dashboard or any other page
+      }
+    } catch (error) {
+      console.error("Unexpected error:", error);
+      toast.error("Unexpected error during sign in");
+    }
+  };
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 w-full justify-center items-center space-x-12">
@@ -204,6 +158,7 @@ export default function LoginPage({}: { status: string }) {
                     name="userType"
                     placeholder="Select who are you?"
                     selectorIcon={<SelectorIcon />}
+                    onChange={handleChange}
                   >
                     {userType.map((user) => (
                       <SelectItem
@@ -223,10 +178,11 @@ export default function LoginPage({}: { status: string }) {
                       id="userNameR"
                       label="Email"
                       labelPlacement="outside"
-                      name="userNameR"
+                      name="email"
                       placeholder="you@example.com"
                       startContent={<FaEnvelope className="text-default-400" />}
                       type="email"
+                      onChange={handleChange}
                     />
                   </div>
                   <br />
@@ -252,10 +208,11 @@ export default function LoginPage({}: { status: string }) {
                       id="passwordR"
                       label="Password"
                       labelPlacement="outside"
-                      name="passwordR"
+                      name="password"
                       placeholder="Enter your password"
                       startContent={<FaLock className="text-default-400" />}
                       type={isVisibleR ? "text" : "password"}
+                      onChange={handleChange}
                     />
                   </div>
 
@@ -310,10 +267,11 @@ export default function LoginPage({}: { status: string }) {
                       id="userNameL"
                       label="Email"
                       labelPlacement="outside"
-                      name="userNameL"
+                      name="email"
                       placeholder="you@example.com"
                       startContent={<FaEnvelope className="text-default-400" />}
                       type="email"
+                      onChange={handleChange}
                     />
                   </div>
                   <br />
@@ -338,10 +296,11 @@ export default function LoginPage({}: { status: string }) {
                       id="passwordL"
                       label="Password"
                       labelPlacement="outside"
-                      name="passwordL"
+                      name="password"
                       placeholder="Enter your password"
                       startContent={<FaLock className="text-default-400" />}
                       type={isVisibleL ? "text" : "password"}
+                      onChange={handleChange}
                     />
                   </div>
                   <div className="flex justify-center">

@@ -7,10 +7,9 @@ export default function BlogLayout({
   children: React.ReactNode;
 }) {
   return (
-    <SparklesPreview>
+    // <SparklesPreview>
       <div className="">
         {children}
       </div>
-      </SparklesPreview>
   );
 }

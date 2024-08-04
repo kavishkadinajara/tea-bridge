@@ -17,8 +17,8 @@ export const siteConfig = {
       href: "/privacy&policy",
     },
     {
-      label: "Blog",
-      href: "/blog",
+      label: "Dashboard",
+      href: "/dashbord/1",
     },
     {
       label: "About",
@@ -39,8 +39,8 @@ export const siteConfig = {
       href: "/docs",
     },
     {
-      label: "Blog",
-      href: "/blog",
+      label: "Dashboard",
+      href: "/dashbord/1",
     },
     {
       label: "About",
