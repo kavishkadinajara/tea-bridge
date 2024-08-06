@@ -13,11 +13,14 @@ import { Select, SelectItem } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { signIn } from "next-auth/react";
+import CryptoJS from "crypto-js";
 
 import { supabase } from "@/lib/supabaseClient"; // Ensure this is the correct path to your supabaseClient.js
 import LoginHero from "@/components/LoginHero";
 import { SelectorIcon } from "@/components/SelectorIcon";
 import { userType } from "@/config/data";
+
+const SECRET_KEY = "your-secret-key"; // Replace with your actual secret key
 
 export default function LoginPage({}: { status: string }) {
   const router = useRouter();
@@ -42,8 +45,14 @@ export default function LoginPage({}: { status: string }) {
     password: "",
   });
 
-  const handleChange = (e: { target: { name: any; value: any } }) => {
+  const handleChange = (e: { target: { name: string; value: string } }) => {
     const { name, value } = e.target;
+
+    if (name === "email" && !isValidEmail(value)) {
+      toast.error("Invalid email format");
+
+      return;
+    }
 
     setFormData({
       ...formData,
@@ -51,9 +60,26 @@ export default function LoginPage({}: { status: string }) {
     });
   };
 
+  const encryptData = (data: string) => {
+    return CryptoJS.AES.encrypt(data, SECRET_KEY).toString();
+  };
+
+  function isValidEmail(email: string): boolean {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    return emailRegex.test(email);
+  }
+
   const createAccount = async (e: FormEvent) => {
     e.preventDefault();
     const { email, password, userType } = formData;
+
+    if (!isValidEmail(email)) {
+      toast.error("Invalid email format");
+
+      return;
+    }
+
     const { data, error } = await supabase.auth.signUp({
       email: email,
       password: password,
@@ -77,6 +103,12 @@ export default function LoginPage({}: { status: string }) {
   const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
     const { email, password } = formData;
+
+    if (!isValidEmail(email)) {
+      toast.error("Invalid email format");
+
+      return;
+    }
 
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
@@ -104,6 +136,41 @@ export default function LoginPage({}: { status: string }) {
       toast.error("Unexpected error during sign in");
     }
   };
+
+  // const handleLogin = async (e: FormEvent) => {
+  //   e.preventDefault();
+  //   const { email, password } = formData;
+
+  //   // Encrypt email and password
+  //   const encryptedEmail = encryptData(email);
+  //   const encryptedPassword = encryptData(password);
+
+  //   try {
+  //     const { data, error } = await supabase.auth.signInWithPassword({
+  //       email: encryptedEmail,
+  //       password: encryptedPassword,
+  //     });
+
+  //     if (error) {
+  //       console.error("Error signing in:", error.message);
+  //       toast.error("Error signing in");
+
+  //       return; // Exit the function early if there's an error
+  //     }
+
+  //     console.log("User signed in:", data);
+  //     toast.success("Logged in successfully!");
+
+  //     if (data?.user?.user_metadata?.userType === "tea_provider") {
+  //       router.push("/");
+  //     } else {
+  //       router.push("/dashboard"); // Redirect to dashboard or any other page
+  //     }
+  //   } catch (error) {
+  //     console.error("Unexpected error:", error);
+  //     toast.error("Unexpected error during sign in");
+  //   }
+  // };
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 w-full justify-center items-center space-x-12">

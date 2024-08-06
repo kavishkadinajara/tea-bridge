@@ -6,6 +6,7 @@ import {
   IconBrandTabler,
   IconSettings,
   IconUserBolt,
+  IconActivity,
 } from "@tabler/icons-react";
 import Link from "next/link";
 import { motion } from "framer-motion";

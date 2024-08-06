@@ -2,5 +2,7 @@
   "typescript.tsdk": "node_modules/typescript/lib",
   "cSpell.words": [
     "supabase"
-  ]
+  ],
+  "WillLuke.nextjs.addTypesOnSave": true,
+  "WillLuke.nextjs.hasPrompted": true
 }
