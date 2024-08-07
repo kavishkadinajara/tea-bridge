@@ -1,4 +1,5 @@
-import React from "react";
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import React, { useState } from "react";
 import {
   Modal,
   ModalContent,
@@ -10,17 +11,23 @@ import {
 } from "@nextui-org/react";
 import { Input } from "@nextui-org/react";
 
-export default function ApplyTeaPowder() {
+// Define the type for props
+interface ApplyTeaPowderProps {
+  selectedFactory: string | null;
+}
+
+const ApplyTeaPowder: React.FC<ApplyTeaPowderProps> = ({ selectedFactory }) => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const [amount, setAmount] = useState<number>(0);
 
   return (
     <>
       <Button
-        className="rounded-3xl border-cyan-500 hover:border-lime-600 shadow-md shadow-cyan-400 hover:shadow-lime-500 py-6 px-7 "
+        className="rounded-3xl border-cyan-500 hover:border-lime-600 shadow-md shadow-cyan-400 hover:shadow-lime-500 py-6 px-7"
         variant="bordered"
         onPress={onOpen}
       >
-        Apply TeaPowder
+        Apply Tea Powder
       </Button>
       <Modal
         backdrop="opaque"
@@ -67,6 +74,8 @@ export default function ApplyTeaPowder() {
                     min={0}
                     placeholder="0"
                     type="number"
+                    value={amount.toString()} // Ensure the value is a string
+                    onChange={(e) => setAmount(Number(e.target.value))} // Convert input value to number
                   />
                 </div>
               </ModalBody>
@@ -84,4 +93,6 @@ export default function ApplyTeaPowder() {
       </Modal>
     </>
   );
-}
+};
+
+export default ApplyTeaPowder;

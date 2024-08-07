@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Modal,
   ModalContent,
@@ -10,13 +10,19 @@ import {
 } from "@nextui-org/react";
 import { Input } from "@nextui-org/react";
 
-export default function ApplyTeaPowder() {
+// Define the type for props
+interface ApplyAdvanceProps {
+  selectedFactory: string | null;
+}
+
+const ApplyAdvance: React.FC<ApplyAdvanceProps> = ({ selectedFactory }) => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const [advanceAmount, setAdvanceAmount] = useState<number>(0);
 
   return (
     <>
       <Button
-        className="rounded-3xl border-cyan-500 hover:border-lime-600 shadow-md shadow-cyan-400 hover:shadow-lime-500 py-6 px-7 "
+        className="rounded-3xl border-cyan-500 hover:border-lime-600 shadow-md shadow-cyan-400 hover:shadow-lime-500 py-6 px-7"
         variant="bordered"
         onPress={onOpen}
       >
@@ -56,7 +62,7 @@ export default function ApplyTeaPowder() {
               <ModalBody>
                 <div className="">
                   <Input
-                    label="Enter amount of you aspect"
+                    label="Enter the amount you expect"
                     labelPlacement="outside"
                     max={50000}
                     min={0}
@@ -67,6 +73,8 @@ export default function ApplyTeaPowder() {
                       </div>
                     }
                     type="number"
+                    value={advanceAmount.toString()} // Ensure the value is a string
+                    onChange={(e) => setAdvanceAmount(Number(e.target.value))} // Convert input value to number
                   />
                 </div>
               </ModalBody>
@@ -84,4 +92,6 @@ export default function ApplyTeaPowder() {
       </Modal>
     </>
   );
-}
+};
+
+export default ApplyAdvance;
