@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-console */
 import React, { useState } from "react";
 import {
@@ -22,14 +23,21 @@ import BarChart from "./BarChart";
 import ApplyFertilizer from "./ApplyFertilizer";
 import PastTeaProvidingStatus from "./PastTeaProvidingStatus";
 
-const MyDashboard = () => {
+// Define the type for the props
+interface MyDashboardProps {
+  userId: string; // Explicitly define the type as string
+}
+
+const MyDashboard: React.FC<MyDashboardProps> = ({ userId }) => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [selectedDate, setSelectedDate] = useState<DateValue>(
-    today(getLocalTimeZone())
+    today(getLocalTimeZone()),
   );
   const [selectedFactory, setSelectedFactory] = useState<string | null>(null);
 
   const defaultContent =
     "Lorem ipsum dolor sit amet, consectetur adipiscing elit...";
+
   const handleDateChange = (date: DateValue) => {
     setSelectedDate(date);
     console.log("Selected Date:", date);
@@ -37,7 +45,7 @@ const MyDashboard = () => {
 
   const formatDate = (date: CalendarDate) => {
     return new Intl.DateTimeFormat("en-GB").format(
-      date.toDate(getLocalTimeZone())
+      date.toDate(getLocalTimeZone()),
     );
   };
 
@@ -60,11 +68,11 @@ const MyDashboard = () => {
   ];
 
   return (
-    <div className="w-full h-full p-8 ">
+    <div className="w-full h-full p-8">
       <div className="container mx-auto shadow-lg rounded-xl p-8">
         <div className="flex justify-between items-center mb-8">
           <h2 className="text-3xl font-semibold text-gray-800">
-            Current Tea Leaves Quantity for This Month
+            Current Tea Leaves Quantity for This Month {userId}
           </h2>
           <h2 className="text-3xl font-bold text-green-600">100 KG</h2>
         </div>

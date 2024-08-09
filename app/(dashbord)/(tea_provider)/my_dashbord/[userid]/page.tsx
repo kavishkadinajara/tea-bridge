@@ -1,22 +1,37 @@
 /* eslint-disable no-console */
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   IconArrowLeft,
   IconBrandTabler,
   IconSettings,
   IconUserBolt,
-  IconActivity,
 } from "@tabler/icons-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import Image from "next/image";
 
 import { Sidebar, SidebarBody, SidebarLink } from "@/components/ui/sidebar";
-import MyDashboard from "@/app/(dashbord)/(tea_provider)/components/MyDashboard";
+import MyDashboard from "@/components/teaProvider/MyDashboard";
 import { cn } from "@/lib/utils/cn";
+import { createClient } from "@/lib/utils/supabase/client";
 
 export default function TeaFactoryPage() {
+  const [userId, setUserId] = useState<string | null>(null);
+  const [open, setOpen] = useState(false);
+  const [activeComponent, setActiveComponent] = useState("Dashboard");
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const supabase = createClient();
+      const session = await supabase.auth.getUser();
+
+      setUserId(session.data.user?.id || null);
+    };
+
+    fetchUser();
+  }, []);
+
   const links = [
     {
       label: "Dashboard",
@@ -51,24 +66,23 @@ export default function TeaFactoryPage() {
   const renderActiveComponent = () => {
     switch (activeComponent) {
       case "MyDashboard":
-        return <MyDashboard />;
+        // Option 1: Provide a fallback value
+        return <MyDashboard userId={userId || ""} />;
       case "Profile":
         return <Profile />;
       case "Settings":
         return <Settings />;
       default:
-        return <MyDashboard />;
+        // Option 2: Conditionally render the component
+        return userId ? <MyDashboard userId={userId} /> : <div>Loading...</div>;
     }
   };
-
-  const [open, setOpen] = useState(false);
-  const [activeComponent, setActiveComponent] = useState("Dashboard");
 
   return (
     <div
       className={cn(
         "rounded-xl flex flex-col md:flex-row bg-green-100 dark:bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#0a0015] via-[#00150e] to-black w-full flex-1 max-w-7xl mx-auto border border-neutral-200 dark:border-neutral-700 overflow-hidden shadow-lg shadow-cyan-500 hover:shadow-lime-500 hover:border-lime-600 cursor-auto mb-8",
-        "min-h-[82vh]", // Adjusted as per your use case
+        "min-h-[82vh]"
       )}
     >
       <Sidebar open={open} setOpen={setOpen}>
@@ -88,7 +102,7 @@ export default function TeaFactoryPage() {
           <div>
             <SidebarLink
               link={{
-                label: "Manu Arora",
+                label: userId || "", // Handle null case by using an empty string
                 action: () => {}, // Define or adjust actions as needed
                 icon: (
                   <Image
@@ -100,9 +114,7 @@ export default function TeaFactoryPage() {
                   />
                 ),
               }}
-              setActiveComponent={function (): void {
-                throw new Error("Function not implemented.");
-              }}
+              setActiveComponent={() => {}}
             />
           </div>
         </SidebarBody>
@@ -142,11 +154,15 @@ export const LogoIcon = () => {
 };
 
 // Dummy dashboard component with content
-const Dashboard = () => {
+const Dashboard = ({ userId }: { userId: string | null }) => {
+  if (!userId) {
+    return <div>No user ID provided</div>; // Handle null userId
+  }
+
   return (
     <div className="">
-      {/* <div className="p-2 md:p-10 rounded-tl-2xl border border-neutral-200 dark:border-neutral-700 bg-green-100 dark:bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#0a0015] via-[#00150e] to-black flex flex-col gap-2 flex-1 w-full h-full" /> */}
-      <MyDashboard />
+      <h1 className="text-3xl font-bold">ID: {userId}</h1>
+      <MyDashboard userId={userId} />
       <Profile />
       <Settings />
     </div>

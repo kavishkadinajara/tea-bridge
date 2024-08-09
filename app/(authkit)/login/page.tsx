@@ -15,7 +15,7 @@ import toast from "react-hot-toast";
 import { signIn } from "next-auth/react";
 import CryptoJS from "crypto-js";
 
-import { supabase } from "@/lib/supabaseClient"; // Ensure this is the correct path to your supabaseClient.js
+import { createClient } from "@/lib/utils/supabase/client"; // Ensure this is the correct path to your supabaseClient.js
 import LoginHero from "@/components/LoginHero";
 import { SelectorIcon } from "@/components/SelectorIcon";
 import { userType } from "@/config/data";
@@ -80,6 +80,7 @@ export default function LoginPage({}: { status: string }) {
       return;
     }
 
+    const supabase = createClient();
     const { data, error } = await supabase.auth.signUp({
       email: email,
       password: password,
@@ -111,6 +112,7 @@ export default function LoginPage({}: { status: string }) {
     }
 
     try {
+      const supabase = createClient();
       const { data, error } = await supabase.auth.signInWithPassword({
         email: email,
         password: password,
