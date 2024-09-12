@@ -2,9 +2,8 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 "use client";
 import React, { useEffect, useState } from "react";
-
-import { createClient } from "@/lib/utils/supabase/client"; // Adjust this path according to your project structure
-import { ReactElement, JSXElementConstructor, ReactNode, Key } from "react";
+import { createClient } from "@/lib/utils/supabase/client"; // Adjust path
+import Image from "next/image";
 
 interface ProfileProps {
   userId: string;
@@ -20,6 +19,7 @@ const Profile: React.FC<ProfileProps> = ({ userId }) => {
     town: "",
     email: "",
     description: "",
+    profilePhoto: "",
   });
   const [profileData, setProfileData] = useState({
     factoryName: "",
@@ -28,9 +28,12 @@ const Profile: React.FC<ProfileProps> = ({ userId }) => {
     town: "",
     email: "",
     description: "",
+    profilePhoto: "",
   });
 
   const [file, setFile] = useState<File | null>(null); // To handle image file
+  const [imagePreview, setImagePreview] = useState<string>("");
+
   const supabase = createClient();
 
   useEffect(() => {
@@ -40,7 +43,7 @@ const Profile: React.FC<ProfileProps> = ({ userId }) => {
         const { data: profileData, error: profileError } = await supabase
           .from("profiles_factories")
           .select(
-            "factory_name, telephone, address, town, updated_at, description",
+            "factory_name, telephone, address, town, description, profile_photo"
           )
           .eq("id", userId)
           .single();
@@ -62,17 +65,15 @@ const Profile: React.FC<ProfileProps> = ({ userId }) => {
           town: profileData?.town || "",
           email: user?.email || "",
           description: profileData?.description || "",
+          profilePhoto: profileData?.profile_photo || "",
         };
 
         // Set both profileData and originalProfileData to the fetched data
         setProfileData(fetchedProfileData);
         setOriginalProfileData(fetchedProfileData);
+        setImagePreview(fetchedProfileData.profilePhoto || "");
       } catch (error) {
-        if (error instanceof Error) {
-          console.error("Error fetching profile or email:", error.message);
-        } else {
-          console.error("Unknown error occurred:", error);
-        }
+        console.error("Error fetching profile or email:", error);
       }
     };
 
@@ -80,13 +81,7 @@ const Profile: React.FC<ProfileProps> = ({ userId }) => {
 
     // Fetch town options dynamically
     fetch("/api/v2/town")
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error(`HTTP error! status: ${res.status}`);
-        }
-
-        return res.json();
-      })
+      .then((res) => res.json())
       .then((data) => {
         setTowns(data.towns || []);
       })
@@ -97,7 +92,7 @@ const Profile: React.FC<ProfileProps> = ({ userId }) => {
     e: React.ChangeEvent<
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
     >,
-    field: keyof typeof profileData,
+    field: keyof typeof profileData
   ) => {
     setProfileData({
       ...profileData,
@@ -107,18 +102,9 @@ const Profile: React.FC<ProfileProps> = ({ userId }) => {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setFile(e.target.files[0]);
-    }
-  };
-
-  const handleDescriptionChange = (
-    e: React.ChangeEvent<HTMLTextAreaElement>,
-  ) => {
-    if (e.target.value.length <= 300) {
-      setProfileData({
-        ...profileData,
-        description: e.target.value,
-      });
+      const selectedFile = e.target.files[0];
+      setFile(selectedFile);
+      setImagePreview(URL.createObjectURL(selectedFile));
     }
   };
 
@@ -130,7 +116,6 @@ const Profile: React.FC<ProfileProps> = ({ userId }) => {
 
       if (error) {
         console.error("Error uploading image:", error.message);
-
         return null;
       }
 
@@ -144,18 +129,10 @@ const Profile: React.FC<ProfileProps> = ({ userId }) => {
     // Upload image and get the URL
     const imgPath = await uploadImage();
 
-    if (imgPath) {
-      const { error: imgSaveError } = await supabase
-        .from("factory_imgs")
-        .insert({
-          factory_id: userId,
-          img_url: imgPath,
-        });
-
-      if (imgSaveError) {
-        console.error("Error saving image URL:", imgSaveError.message);
-      }
-    }
+    // Update profile photo in profile data
+    const updatedProfilePhoto = imgPath
+      ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/factory-images/${imgPath}`
+      : profileData.profilePhoto;
 
     // Update the profile data in the database
     const { error } = await supabase
@@ -166,7 +143,7 @@ const Profile: React.FC<ProfileProps> = ({ userId }) => {
         address: profileData.address,
         town: profileData.town,
         description: profileData.description,
-        updated_at: new Date().toISOString(),
+        profile_photo: updatedProfilePhoto,
       })
       .eq("id", userId);
 
@@ -174,32 +151,56 @@ const Profile: React.FC<ProfileProps> = ({ userId }) => {
       console.error("Error updating profile:", error.message);
     } else {
       setOriginalProfileData(profileData);
+      setIsEditing(false); // Exit editing mode after saving
     }
   };
 
   const toggleEdit = () => {
     if (isEditing) {
       saveProfile();
+    } else {
+      setIsEditing(true);
     }
-
-    setIsEditing(!isEditing);
   };
 
   const handleCancel = () => {
     setProfileData(originalProfileData);
+    setImagePreview(originalProfileData.profilePhoto);
     setIsEditing(false);
   };
 
   return (
     <div className="w-full h-full lg:p-8">
-      <div className="container mx-auto bg-green-100 dark:bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#0a0015] via-[#00150e] to-black shadow-lg rounded-xl p-8">
+      <div className="container mx-auto  rounded-xl p-8">
         <h2 className="text-3xl font-bold text-center text-gray-800 dark:text-gray-100 mb-8">
           {profileData.factoryName} Profile
         </h2>
 
+        {/* Profile Picture */}
+        <div className="relative w-32 h-32 mx-auto">
+          <Image
+            src={imagePreview || "/default-avatar.jpg"}
+            alt="Profile Photo"
+            layout="fill"
+            objectFit="cover"
+            className="rounded-full shadow-md"
+          />
+          {isEditing && (
+            <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center rounded-full cursor-pointer">
+              <span className="text-white text-lg">📷</span>
+              <input
+                accept="image/*"
+                type="file"
+                className="absolute inset-0 opacity-0 cursor-pointer"
+                onChange={handleFileChange}
+              />
+            </div>
+          )}
+        </div>
+
         {/* Profile Information */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          {/* Full Name */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 mt-12">
+          {/* Factory Name */}
           <div>
             <label className="text-gray-700 dark:text-gray-200">
               Factory Name
@@ -251,8 +252,8 @@ const Profile: React.FC<ProfileProps> = ({ userId }) => {
             />
           </div>
 
-         {/* Town Selection */}
-         <div>
+          {/* Town Selection */}
+          <div>
             <label className="text-gray-700 dark:text-gray-200">Town</label>
             {isEditing ? (
               <select
@@ -267,14 +268,13 @@ const Profile: React.FC<ProfileProps> = ({ userId }) => {
                     </option>
                   ))
                 ) : (
-                  <option value={profileData.town}>{profileData.town}</option>
+                  <option>Loading towns...</option>
                 )}
               </select>
             ) : (
               <input
-                disabled
                 className="w-full p-3 rounded-xl border border-gray-300 bg-gray-100 text-gray-800 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200"
-                type="text"
+                disabled
                 value={profileData.town}
               />
             )}
@@ -284,22 +284,17 @@ const Profile: React.FC<ProfileProps> = ({ userId }) => {
           <div>
             <label className="text-gray-700 dark:text-gray-200">Email</label>
             <input
+              className="w-full p-3 rounded-xl border border-gray-300 bg-gray-100 text-gray-800 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200"
               disabled
-              className={`w-full p-3 rounded-xl border ${
-                isEditing
-                  ? "border-lime-500 bg-white"
-                  : "border-gray-300 bg-gray-100"
-              } text-gray-800 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200`}
               type="email"
               value={profileData.email}
-              onChange={(e) => handleInputChange(e, "email")}
             />
           </div>
 
           {/* Description */}
-          <div>
+          <div className="md:col-span-2">
             <label className="text-gray-700 dark:text-gray-200">
-              Description (max 300 chars)
+              Description
             </label>
             <textarea
               className={`w-full p-3 rounded-xl border ${
@@ -308,43 +303,35 @@ const Profile: React.FC<ProfileProps> = ({ userId }) => {
                   : "border-gray-300 bg-gray-100"
               } text-gray-800 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200`}
               disabled={!isEditing}
-              maxLength={300}
               value={profileData.description}
-              onChange={handleDescriptionChange}
+              onChange={(e) => handleInputChange(e, "description")}
             />
-            <p>{profileData.description.length} / 300</p>
           </div>
-
-          {/* Image Upload */}
-          {isEditing && (
-            <div>
-              <label className="text-gray-700 dark:text-gray-200">
-                Upload Factory Image
-              </label>
-              <input
-                accept="image/*"
-                className="block w-full text-gray-800 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200"
-                type="file"
-                onChange={handleFileChange}
-              />
-            </div>
-          )}
         </div>
 
-        {/* Update and Cancel Buttons */}
-        <div className="text-center">
-          <button
-            className="px-6 py-3 rounded-xl bg-lime-500 hover:bg-lime-600 text-white font-bold shadow-lg transition-all mr-4"
-            onClick={toggleEdit}
-          >
-            {isEditing ? "Save" : "Update"}
-          </button>
-          {isEditing && (
+        {/* Action Buttons */}
+        <div className="flex justify-center space-x-4">
+          {isEditing ? (
+            <>
+              <button
+                className="p-3 rounded-xl bg-lime-500 hover:bg-lime-600 text-white font-bold"
+                onClick={toggleEdit}
+              >
+                Save
+              </button>
+              <button
+                className="p-3 rounded-xl bg-red-500 hover:bg-red-600 text-white font-bold"
+                onClick={handleCancel}
+              >
+                Cancel
+              </button>
+            </>
+          ) : (
             <button
-              className="px-6 py-3 rounded-xl bg-gray-500 hover:bg-gray-600 text-white font-bold shadow-lg transition-all"
-              onClick={handleCancel}
+              className="p-3 rounded-xl bg-lime-500 hover:bg-lime-600 text-white font-bold"
+              onClick={toggleEdit}
             >
-              Cancel
+              Edit
             </button>
           )}
         </div>
