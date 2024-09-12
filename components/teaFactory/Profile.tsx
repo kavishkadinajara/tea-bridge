@@ -4,6 +4,7 @@
 import React, { useEffect, useState } from "react";
 
 import { createClient } from "@/lib/utils/supabase/client"; // Adjust this path according to your project structure
+import { ReactElement, JSXElementConstructor, ReactNode, Key } from "react";
 
 interface ProfileProps {
   userId: string;
@@ -193,7 +194,7 @@ const Profile: React.FC<ProfileProps> = ({ userId }) => {
     <div className="w-full h-full lg:p-8">
       <div className="container mx-auto bg-green-100 dark:bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#0a0015] via-[#00150e] to-black shadow-lg rounded-xl p-8">
         <h2 className="text-3xl font-bold text-center text-gray-800 dark:text-gray-100 mb-8">
-          My Profile
+          {profileData.factoryName} Profile
         </h2>
 
         {/* Profile Information */}
@@ -201,7 +202,7 @@ const Profile: React.FC<ProfileProps> = ({ userId }) => {
           {/* Full Name */}
           <div>
             <label className="text-gray-700 dark:text-gray-200">
-              Full Name
+              Factory Name
             </label>
             <input
               className={`w-full p-3 rounded-xl border ${
@@ -250,8 +251,8 @@ const Profile: React.FC<ProfileProps> = ({ userId }) => {
             />
           </div>
 
-          {/* Town */}
-          <div>
+         {/* Town Selection */}
+         <div>
             <label className="text-gray-700 dark:text-gray-200">Town</label>
             {isEditing ? (
               <select

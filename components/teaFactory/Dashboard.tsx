@@ -139,7 +139,7 @@ const MyDashboard: React.FC<MyDashboardProps> = ({
 
         <div className="flex flex-col items-center justify-center py-6">
           <button
-            className="w-full lg:w-1/2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75"
+            className="w-full lg:w-1/2 px-4 py-2 border-cyan-600 hover:border-lime-500 border-2 shadow-md shadow-cyan-600 hover:shadow-lime-600 transition-shadow duration-300 hover:shadow-lg text-white font-semibold rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-10"
             onClick={() => setActiveComponent("Suppliers")}
           >
             View Suppliers

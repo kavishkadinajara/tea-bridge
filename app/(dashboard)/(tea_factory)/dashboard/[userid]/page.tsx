@@ -7,6 +7,7 @@ import {
   IconBrandTabler,
   IconReportAnalytics,
   IconUserBolt,
+  IconUsers,
 } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 
@@ -91,7 +92,7 @@ export default function TeaFactoryPage() {
       label: "Suppliers",
       action: () => setActiveComponent("Suppliers"),
       icon: (
-        <IconReportAnalytics className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
+        <IconUsers className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
       ),
     },
     {
