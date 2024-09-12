@@ -1,9 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    images: {
-      domains: ['bdtpihbswhrgvmnmalzr.supabase.co'], // Add your Supabase storage domain here
-    },
-  }
-  
-  module.exports = nextConfig
-  
+  images: {
+    domains: ['bdtpihbswhrgvmnmalzr.supabase.co', 'images.unsplash.com', 'assets.aceternity.com'],
+  },
+}
+
+module.exports = nextConfig

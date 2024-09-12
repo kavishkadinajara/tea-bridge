@@ -17,8 +17,8 @@ export const siteConfig = {
     //   href: "/privacy&policy",
     // },
     {
-      label: "Dashboard",
-      href: "/my_dashbord/1",
+      label: "Tea Factories",
+      href: "/tea_factories",
     },
     {
       label: "About",
@@ -39,8 +39,8 @@ export const siteConfig = {
     //   href: "/docs",
     // },
     {
-      label: "Dashboard",
-      href: "/my_dashbord/1",
+      label: "Tea Factories",
+      href: "/tea_factories",
     },
     {
       label: "About",
