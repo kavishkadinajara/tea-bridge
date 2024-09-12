@@ -1,0 +1,11 @@
+{
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "cSpell.words": [
+    "Dinajara",
+    "Kavishka",
+    "nextui",
+    "supabase"
+  ],
+  "WillLuke.nextjs.addTypesOnSave": true,
+  "WillLuke.nextjs.hasPrompted": true
+}
