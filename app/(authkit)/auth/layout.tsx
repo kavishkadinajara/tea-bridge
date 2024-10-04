@@ -8,7 +8,7 @@ export default function LoginLayout({
   return (
     <SparklesPreview>
       {/* <Navbar /> */}
-      <div className="container mx-auto max-w-screen px-20 h-full flex-grow min-h-screen">
+      <div className="container mx-auto px-2 md:px-4 lg:px-8 w-full h-full flex-grow min-h-screen">
         {children}
       </div>
     </SparklesPreview>

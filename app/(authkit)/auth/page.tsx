@@ -258,13 +258,13 @@ export default function LoginPage({}: { status: string }) {
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 w-full justify-center items-center space-x-12">
-      <div className="hidden lg:block lg:col-span-1">
+    <div className="flex md:flex-col lg:flex-row-reverse overflow-x-hidden w-full  justify-center items-center space-x-8">
+      <div className="hidden md:block ">
         <LoginHero />
       </div>
 
-      <div className="flex flex-col justify-center items-center min-h-[680px] mt-4">
-        <div className="lg:col-span-1 md:shadow-lg p-6 w-full md:shadow-cyan-600 md:hover:shadow-lime-500 rounded-3xl">
+      <div className="flex flex-col justify-center items-center min-h-[680px] mt-4 px-0 md:px-0 lg:px-8">
+        <div className="lg:col-span-1 md:shadow-lg m-6 md:shadow-cyan-600 md:hover:shadow-lime-500 rounded-3xl">
           <div className="flex justify-center md:mb-4">
             <div className="z-50">
               <Link href={"/"}>
@@ -282,7 +282,6 @@ export default function LoginPage({}: { status: string }) {
             </h1>
             <br />
           </div>
-
           <div className="flex justify-center items-center">
             <div className="flex justify-center items-center">
               <motion.div

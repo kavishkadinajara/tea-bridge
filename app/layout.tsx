@@ -8,6 +8,7 @@ import "@/styles/scrollbar.css";
 
 import { siteConfig } from "@/config/site";
 import { fontSans } from "@/config/fonts";
+import { SparklesPreview } from "@/components/SparklesPreview";
 
 // import { Navbar } from "@/components/navbar";
 // import i18n from "@/lib/i18n";
@@ -48,7 +49,9 @@ export default function RootLayout({
         <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
           <div className="relative flex flex-col">
             {/* <Navbar /> */}
+            {/* <SparklesPreview> */}
             <main className="">{children}</main>
+            {/* </SparklesPreview> */}
           </div>
         </Providers>
       </body>
