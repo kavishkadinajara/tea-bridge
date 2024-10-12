@@ -14,10 +14,13 @@ import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import CryptoJS from "crypto-js";
 
+import SingUp from "../components/SingUp";
+
 import { createClient } from "@/lib/utils/supabase/client"; // Ensure this is the correct path to your supabaseClient.js
 import LoginHero from "@/components/LoginHero";
 import { SelectorIcon } from "@/components/SelectorIcon";
 import { userType } from "@/config/data";
+
 
 const SECRET_KEY = "your-secret-key"; // Replace with your actual secret key
 
@@ -43,6 +46,10 @@ export default function AuthPage({}: { status: string }) {
     setAuthCard((prevAuthCard) =>
       prevAuthCard === "Sign In" ? "Sign Up" : "Sign In",
     );
+    setError("");
+    setErrorMsg("");
+    setLoginPassword("");
+    setLoginEmail("");
   }
 
   const [formData, setFormData] = useState({
@@ -99,34 +106,55 @@ export default function AuthPage({}: { status: string }) {
     }
 
     const supabase = createClient();
-    const { data, error } = await supabase.auth.signUp({
-      email: email,
-      password: password,
-      options: {
-        data: { userType: userType },
-      },
-    });
 
-    if (error) {
-      console.error("Error signing up!", error.message);
-      setError("Error signing up!");
-      setErrorMsg("Error signing up!");
-      toast.error("Error signing up!");
-      setLoginPassword("");
-    } else {
+    try {
+      // Attempt to sign up the user
+      const { data, error } = await supabase.auth.signUp({
+        email: email,
+        password: password,
+        options: {
+          data: { userType: userType },
+        },
+      });
+
+      if (error) {
+        // Check if the error message indicates that the email is already used
+        if (error.message.includes("already registered")) {
+          setError("This email is already used!");
+          setErrorMsg("This email is already used!");
+          toast.error("This email is already used!");
+        } else {
+          // Handle other sign-up errors
+          console.error("Error signing up!", error.message);
+          setError("Error signing up!");
+          setErrorMsg("Error signing up!");
+          toast.error("Error signing up!");
+        }
+        setLoginPassword(""); // Clear password field on error
+
+        return;
+      }
+
       console.log("User signed up!", data);
 
-      // Insert the profile manually after registration
+      // Insert the profile manually after registration based on userType
       if (userType === "tea_supplier") {
         await supabase.from("profiles_suppliers").insert({ id: data.user?.id });
       } else if (userType === "tea_factory") {
         await supabase.from("profiles_factories").insert({ id: data.user?.id });
       }
 
+      // Success message
       setError("Account created successfully!");
       setErrorMsg("Account created successfully!");
       toast.success("Account created successfully!");
       setAuthCard("Sign In");
+    } catch (error) {
+      console.error("Unexpected error during account creation:", error);
+      setError("Please try again!");
+      setErrorMsg("Please try again!");
+      toast.error("Unexpected error during sign-up!");
+      setLoginPassword(""); // Clear password field on unexpected error
     }
   };
 
@@ -289,7 +317,7 @@ export default function AuthPage({}: { status: string }) {
           {/*///////////////////////////////////////////////// FORMS/////////////////////////////////////////////////////////////////////// */}
           <div className="flex justify-center items-center">
             {/* ///////////////////////////////////////////////////REGISTER FORM ////////////////////////////////////////////////////////////*/}
-            <div className="flex justify-center items-center">
+            <div className="flex justify-center items-center" id="register">
               <motion.div
                 animate={{
                   opacity: authCard === "Sign In" ? 0.5 : 1,
@@ -394,6 +422,7 @@ export default function AuthPage({}: { status: string }) {
                     </button>
                   </div>
                 </form>
+                {/* <SingUp/> */}
                 <div className="flex justify-center">
                   <button
                     className="text-cyan-600 hover:text-lime-600 mt-4 text-center"
@@ -406,7 +435,7 @@ export default function AuthPage({}: { status: string }) {
               </motion.div>
             </div>
             {/*///////////////////////////////////////////////////// LOGIN FORM //////////////////////////////////////////////////////////////*/}
-            <div className="flex justify-center items-center">
+            <div className="flex justify-center items-center" id="login">
               <motion.div
                 animate={{
                   opacity: authCard === "Sign Up" ? 0.5 : 1,
