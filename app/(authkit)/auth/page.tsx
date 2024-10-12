@@ -21,7 +21,7 @@ import { userType } from "@/config/data";
 
 const SECRET_KEY = "your-secret-key"; // Replace with your actual secret key
 
-export default function LoginPage({}: { status: string }) {
+export default function AuthPage({}: { status: string }) {
   const router = useRouter();
 
   const [isErrorMsg, setErrorMsg] = useState<string | null>(null);
@@ -32,6 +32,10 @@ export default function LoginPage({}: { status: string }) {
 
   const toggleVisibilityR = () => setIsVisibleR(!isVisibleR);
   const toggleVisibilityL = () => setIsVisibleL(!isVisibleL);
+
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
+  const [registerEmail, setRegisterEmail] = useState("");
 
   const [authCard, setAuthCard] = useState("Sign In");
 
@@ -54,6 +58,7 @@ export default function LoginPage({}: { status: string }) {
       setError("Invalid email format! Enter correct email.");
       setErrorMsg("Invalid email format! Enter correct email.");
       toast.error("Invalid email format");
+      setLoginEmail("");
 
       return;
     }
@@ -80,6 +85,7 @@ export default function LoginPage({}: { status: string }) {
     return emailRegex.test(email);
   }
 
+  // ///////////////////////////////////////////// SIGN UP HANDELING /////////////////////////////////////////////
   const createAccount = async (e: FormEvent) => {
     e.preventDefault();
     const { email, password, userType } = formData;
@@ -106,6 +112,7 @@ export default function LoginPage({}: { status: string }) {
       setError("Error signing up!");
       setErrorMsg("Error signing up!");
       toast.error("Error signing up!");
+      setLoginPassword("");
     } else {
       console.log("User signed up!", data);
 
@@ -133,13 +140,14 @@ export default function LoginPage({}: { status: string }) {
       setErrorMsg("Invalid email format! Enter correct email.");
       toast.error("Invalid email format");
 
+      setLoginEmail(""); // Clear email field on invalid email
+
       return;
     }
 
     try {
       const supabase = createClient();
 
-      // Check for existing login attempts
       let { data: loginAttempt } = await supabase
         .from("login_attempts")
         .select("*")
@@ -157,14 +165,10 @@ export default function LoginPage({}: { status: string }) {
             60000,
         );
 
-        // Reset attempts if remainingTime is 0
         if (remainingTime <= 0) {
           await supabase
             .from("login_attempts")
-            .update({
-              attempts: 0,
-              blocked_until: null,
-            })
+            .update({ attempts: 0, blocked_until: null })
             .eq("email", email);
 
           setError("Your account is now unlocked. Please try again.");
@@ -181,11 +185,12 @@ export default function LoginPage({}: { status: string }) {
             `Account is locked. Try again in ${remainingTime} minute(s).`,
           );
 
+          setLoginEmail(""); // Clear email field on account lock
+
           return;
         }
       }
 
-      // Attempt to sign in the user
       const { data, error } = await supabase.auth.signInWithPassword({
         email: email,
         password: password,
@@ -194,7 +199,6 @@ export default function LoginPage({}: { status: string }) {
       if (error) {
         console.error("Error signing in:", error.message);
 
-        // Increment the failed attempt counter
         if (!loginAttempt) {
           await supabase.from("login_attempts").insert({ email, attempts: 1 });
         } else {
@@ -219,27 +223,23 @@ export default function LoginPage({}: { status: string }) {
         setErrorMsg("Invalid username or password! Please try again.");
         toast.error("Invalid username or password! Please try again.");
 
+        setLoginEmail(""); // Clear email field on incorrect credentials
+        setLoginPassword("");
+
         return;
       }
 
-      // Reset login attempts on successful login
       if (loginAttempt) {
-        const { error } = await supabase
+        await supabase
           .from("login_attempts")
           .update({ attempts: 0, blocked_until: null })
           .eq("email", email);
-
-        if (error) {
-          console.error("Error resetting login attempts:", error.message);
-        }
       }
 
-      // Display success messages
       setError("Logged in successfully!");
       setErrorMsg("Logged in successfully!");
       toast.success("Logged in successfully!");
 
-      // Redirect based on user type
       const userType = data?.user?.user_metadata?.userType;
       const userEmail = data?.user?.user_metadata?.email;
       const userId = userEmail ? userEmail.split("@")[0] : null;
@@ -254,18 +254,20 @@ export default function LoginPage({}: { status: string }) {
       setError("Please try again!");
       setErrorMsg("Please try again!");
       toast.error("Unexpected error during sign-in");
+
+      setLoginEmail(""); // Clear email field on unexpected error
     }
   };
 
   return (
-    <div className="flex md:flex-col lg:flex-row-reverse overflow-x-hidden w-full  justify-center items-center space-x-8">
+    <div className="flex md:flex-col lg:flex-row overflow-x-hidden w-full  justify-center items-center space-x-8">
       <div className="hidden md:block ">
         <LoginHero />
       </div>
 
       <div className="flex flex-col justify-center items-center min-h-[680px] mt-4 px-0 md:px-0 lg:px-8">
         <div className="lg:col-span-1 md:shadow-lg m-6 md:shadow-cyan-600 md:hover:shadow-lime-500 rounded-3xl">
-          <div className="flex justify-center md:mb-4">
+          <div className="flex flex-auto justify-center md:mb-4">
             <div className="z-50">
               <Link href={"/"}>
                 <Image
@@ -277,12 +279,16 @@ export default function LoginPage({}: { status: string }) {
                 />
               </Link>
             </div>
-            <h1 className="text-lg md:text-2xl lg:text-3xl text-center font-bold mt-3 md:mt-8">
-              {authCard}
-            </h1>
+            <div>
+              <h1 className="text-lg md:text-2xl lg:text-3xl text-center font-bold mt-3 md:mt-8">
+                {authCard}
+              </h1>
+            </div>
             <br />
           </div>
+          {/*///////////////////////////////////////////////// FORMS/////////////////////////////////////////////////////////////////////// */}
           <div className="flex justify-center items-center">
+            {/* ///////////////////////////////////////////////////REGISTER FORM ////////////////////////////////////////////////////////////*/}
             <div className="flex justify-center items-center">
               <motion.div
                 animate={{
@@ -292,9 +298,9 @@ export default function LoginPage({}: { status: string }) {
                 className={clsx(
                   "p-8 rounded-2xl shadow-lg shadow-cyan-600 hover:shadow-lime-500 w-full max-w-sm relative mb-6",
                   {
-                    "left-28 backdrop-blur-3xl blur-[2px] z-0":
+                    "left-16 backdrop-blur-3xl blur-[2px] z-0":
                       authCard === "Sign In",
-                    "left-28 md:left-32 bg-green-100 dark:bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#0a0015] via-[#00150e] to-black z-20":
+                    "left-24 md:left-32 bg-green-100 dark:bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#0a0015] via-[#00150e] to-black z-20":
                       authCard === "Sign Up",
                   },
                 )}
@@ -399,7 +405,7 @@ export default function LoginPage({}: { status: string }) {
                 </div>
               </motion.div>
             </div>
-
+            {/*///////////////////////////////////////////////////// LOGIN FORM //////////////////////////////////////////////////////////////*/}
             <div className="flex justify-center items-center">
               <motion.div
                 animate={{
@@ -409,8 +415,8 @@ export default function LoginPage({}: { status: string }) {
                 className={clsx(
                   "p-8 rounded-2xl shadow-lg shadow-cyan-600 hover:shadow-lime-500 w-full max-w-sm relative",
                   {
-                    "right-28 blur-[2px] z-0": authCard === "Sign Up",
-                    "right-40 md:right-32 bg-green-100 dark:bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#0a0015] via-[#00150e] to-black z-20":
+                    "right-24 blur-[2px] z-0": authCard === "Sign Up",
+                    "right-32 md:right-32 bg-green-100 dark:bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#0a0015] via-[#00150e] to-black z-20":
                       authCard === "Sign In",
                   },
                 )}
@@ -456,7 +462,7 @@ export default function LoginPage({}: { status: string }) {
                       placeholder="Enter your password"
                       startContent={<FaLock className="text-default-400" />}
                       type={isVisibleL ? "text" : "password"}
-                      onChange={handleChange}
+                      onChange={(e) => setLoginPassword(e.target.value)}
                     />
                   </div>
                   <div className="flex justify-center">
