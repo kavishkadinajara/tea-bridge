@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import React, { useState, useEffect } from "react";
 import { FaLeaf } from "react-icons/fa";
 import CountUp from "react-countup";
@@ -51,7 +52,7 @@ const MyDashboard: React.FC<MyDashboardProps> = ({
 
         setFactoryData(fetchFactoryName);
         setCurrentQuantity(897);
-        setTotalSuppliers(1059);
+        setTotalSuppliers(10519);
         setSupplierRequests(102);
       } catch (error) {
         if (error instanceof Error) {

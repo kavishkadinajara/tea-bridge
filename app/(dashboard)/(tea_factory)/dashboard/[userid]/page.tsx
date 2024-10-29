@@ -20,7 +20,6 @@ import Loading from "@/components/Loading";
 import { cn } from "@/lib/utils/cn";
 import { createClient } from "@/lib/utils/supabase/client";
 import { Logo } from "@/components/icons";
-import { LogoIcon } from "@/app/blog/page";
 
 export default function TeaFactoryPage() {
   const [userId, setUserId] = useState<string | null>(null);
@@ -145,7 +144,7 @@ export default function TeaFactoryPage() {
       <Sidebar open={open} setOpen={setOpen}>
         <SidebarBody className="justify-between gap-10">
           <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
-            {open ? <Logo /> : <LogoIcon />}
+            {/* {open ? <Logo /> : <LogoIcon />} */}
             <div className="mt-8 flex flex-col gap-2">
               {links.map((link, idx) => (
                 <SidebarLink
