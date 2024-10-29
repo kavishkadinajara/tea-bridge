@@ -2,25 +2,22 @@
 /* eslint-disable no-console */
 "use client";
 
-import { FaEye, FaEyeSlash, FaEnvelope, FaLock } from "react-icons/fa";
-import { motion } from "framer-motion";
-import Link from "next/link";
-import Image from "next/image";
 import { Input } from "@nextui-org/input";
-import React, { FormEvent, useState } from "react";
-import clsx from "clsx";
 import { Select, SelectItem } from "@nextui-org/react";
-import { useRouter } from "next/navigation";
-import toast from "react-hot-toast";
+import clsx from "clsx";
 import CryptoJS from "crypto-js";
+import { motion } from "framer-motion";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { FormEvent, useState } from "react";
+import toast from "react-hot-toast";
+import { FaEnvelope, FaEye, FaEyeSlash, FaLock } from "react-icons/fa";
 
-import SingUp from "../components/SingUp";
-
-import { createClient } from "@/lib/utils/supabase/client"; // Ensure this is the correct path to your supabaseClient.js
 import LoginHero from "@/components/LoginHero";
 import { SelectorIcon } from "@/components/SelectorIcon";
 import { userType } from "@/config/data";
-
+import { createClient } from "@/lib/utils/supabase/client"; // Ensure this is the correct path to your supabaseClient.js
 
 const SECRET_KEY = "your-secret-key"; // Replace with your actual secret key
 
@@ -168,14 +165,13 @@ export default function AuthPage({}: { status: string }) {
       setErrorMsg("Invalid email format! Enter correct email.");
       toast.error("Invalid email format");
 
-      setLoginEmail(""); // Clear email field on invalid email
-
       return;
     }
 
     try {
       const supabase = createClient();
 
+      // Check for existing login attempts
       let { data: loginAttempt } = await supabase
         .from("login_attempts")
         .select("*")
@@ -193,32 +189,33 @@ export default function AuthPage({}: { status: string }) {
             60000,
         );
 
+        // Reset attempts if remainingTime is 0
         if (remainingTime <= 0) {
           await supabase
             .from("login_attempts")
-            .update({ attempts: 0, blocked_until: null })
+            .update({
+              attempts: 0,
+              blocked_until: null,
+            })
             .eq("email", email);
 
           setError("Your account is now unlocked. Please try again.");
           setErrorMsg("Your account is now unlocked. Please try again.");
           toast.success("Your account is now unlocked. Please try again.");
         } else {
-          setError(
-            `Account is locked. Try again in ${remainingTime} minute(s).`,
-          );
+          setError(`Account is locked. Try again in ${remainingTime} minutes.`);
           setErrorMsg(
-            `Account is locked. Try again in ${remainingTime} minute(s).`,
+            `Account is locked. Try again in ${remainingTime} minutes.`,
           );
           toast.error(
-            `Account is locked. Try again in ${remainingTime} minute(s).`,
+            `Account is locked. Try again in ${remainingTime} minutes`,
           );
-
-          setLoginEmail(""); // Clear email field on account lock
 
           return;
         }
       }
 
+      // Attempt to sign in the user
       const { data, error } = await supabase.auth.signInWithPassword({
         email: email,
         password: password,
@@ -227,6 +224,7 @@ export default function AuthPage({}: { status: string }) {
       if (error) {
         console.error("Error signing in:", error.message);
 
+        // Increment the failed attempt counter
         if (!loginAttempt) {
           await supabase.from("login_attempts").insert({ email, attempts: 1 });
         } else {
@@ -251,23 +249,27 @@ export default function AuthPage({}: { status: string }) {
         setErrorMsg("Invalid username or password! Please try again.");
         toast.error("Invalid username or password! Please try again.");
 
-        setLoginEmail(""); // Clear email field on incorrect credentials
-        setLoginPassword("");
-
         return;
       }
 
+      // Reset login attempts on successful login
       if (loginAttempt) {
-        await supabase
+        const { error } = await supabase
           .from("login_attempts")
           .update({ attempts: 0, blocked_until: null })
           .eq("email", email);
+
+        if (error) {
+          console.error("Error resetting login attempts:", error.message);
+        }
       }
 
+      // Display success messages
       setError("Logged in successfully!");
       setErrorMsg("Logged in successfully!");
       toast.success("Logged in successfully!");
 
+      // Redirect based on user type
       const userType = data?.user?.user_metadata?.userType;
       const userEmail = data?.user?.user_metadata?.email;
       const userId = userEmail ? userEmail.split("@")[0] : null;
@@ -282,8 +284,6 @@ export default function AuthPage({}: { status: string }) {
       setError("Please try again!");
       setErrorMsg("Please try again!");
       toast.error("Unexpected error during sign-in");
-
-      setLoginEmail(""); // Clear email field on unexpected error
     }
   };
 
@@ -491,7 +491,7 @@ export default function AuthPage({}: { status: string }) {
                       placeholder="Enter your password"
                       startContent={<FaLock className="text-default-400" />}
                       type={isVisibleL ? "text" : "password"}
-                      onChange={(e) => setLoginPassword(e.target.value)}
+                      onChange={handleChange}
                     />
                   </div>
                   <div className="flex justify-center">

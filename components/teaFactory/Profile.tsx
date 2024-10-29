@@ -2,8 +2,9 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 "use client";
 import React, { useEffect, useState } from "react";
-import { createClient } from "@/lib/utils/supabase/client"; // Adjust path
 import Image from "next/image";
+
+import { createClient } from "@/lib/utils/supabase/client"; // Adjust path
 
 interface ProfileProps {
   userId: string;
@@ -43,7 +44,7 @@ const Profile: React.FC<ProfileProps> = ({ userId }) => {
         const { data: profileData, error: profileError } = await supabase
           .from("profiles_factories")
           .select(
-            "factory_name, telephone, address, town, description, profile_photo"
+            "factory_name, telephone, address, town, description, profile_photo",
           )
           .eq("id", userId)
           .single();
@@ -92,7 +93,7 @@ const Profile: React.FC<ProfileProps> = ({ userId }) => {
     e: React.ChangeEvent<
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
     >,
-    field: keyof typeof profileData
+    field: keyof typeof profileData,
   ) => {
     setProfileData({
       ...profileData,
@@ -103,6 +104,7 @@ const Profile: React.FC<ProfileProps> = ({ userId }) => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const selectedFile = e.target.files[0];
+
       setFile(selectedFile);
       setImagePreview(URL.createObjectURL(selectedFile));
     }
@@ -116,6 +118,7 @@ const Profile: React.FC<ProfileProps> = ({ userId }) => {
 
       if (error) {
         console.error("Error uploading image:", error.message);
+
         return null;
       }
 
@@ -179,19 +182,19 @@ const Profile: React.FC<ProfileProps> = ({ userId }) => {
         {/* Profile Picture */}
         <div className="relative w-32 h-32 mx-auto">
           <Image
-            src={imagePreview || "/default-avatar.jpg"}
             alt="Profile Photo"
+            className="rounded-full shadow-md"
             layout="fill"
             objectFit="cover"
-            className="rounded-full shadow-md"
+            src={imagePreview || "/default-avatar.jpg"}
           />
           {isEditing && (
             <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center rounded-full cursor-pointer">
               <span className="text-white text-lg">📷</span>
               <input
                 accept="image/*"
-                type="file"
                 className="absolute inset-0 opacity-0 cursor-pointer"
+                type="file"
                 onChange={handleFileChange}
               />
             </div>
@@ -273,8 +276,8 @@ const Profile: React.FC<ProfileProps> = ({ userId }) => {
               </select>
             ) : (
               <input
-                className="w-full p-3 rounded-xl border border-gray-300 bg-gray-100 text-gray-800 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200"
                 disabled
+                className="w-full p-3 rounded-xl border border-gray-300 bg-gray-100 text-gray-800 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200"
                 value={profileData.town}
               />
             )}
@@ -284,8 +287,8 @@ const Profile: React.FC<ProfileProps> = ({ userId }) => {
           <div>
             <label className="text-gray-700 dark:text-gray-200">Email</label>
             <input
-              className="w-full p-3 rounded-xl border border-gray-300 bg-gray-100 text-gray-800 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200"
               disabled
+              className="w-full p-3 rounded-xl border border-gray-300 bg-gray-100 text-gray-800 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200"
               type="email"
               value={profileData.email}
             />
