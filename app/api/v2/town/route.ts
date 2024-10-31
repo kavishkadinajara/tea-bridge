@@ -1,19 +1,11 @@
 /* eslint-disable no-console */
 // /* eslint-disable no-console */
-import type { NextApiRequest, NextApiResponse } from "next";
 
 import axios from "axios";
 import * as cheerio from "cheerio";
 import { NextResponse } from "next/server";
 
-type TownsResponse = {
-  towns: string[];
-};
-
-export async function GET(
-  req: NextApiRequest,
-  res: NextApiResponse<TownsResponse | { error: string }>,
-) {
+export async function GET() {
   try {
     // Fetch the HTML content from the external website
     const response = await axios.get(
@@ -37,7 +29,8 @@ export async function GET(
       return NextResponse.json({ towns });
     } else {
       console.warn("No towns found in the HTML content.");
-      res.status(404).json({ error: "No towns found." });
+
+      return NextResponse.json({ error: "No towns found." }, { status: 404 });
     }
   } catch (error) {
     console.error("Error fetching towns:", error);
