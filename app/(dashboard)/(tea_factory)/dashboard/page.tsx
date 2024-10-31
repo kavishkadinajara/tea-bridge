@@ -19,10 +19,10 @@ import Suppliers from "@/components/teaFactory/Suppliers";
 import Loading from "@/components/Loading";
 import { cn } from "@/lib/utils/cn";
 import { createClient } from "@/lib/utils/supabase/client";
-import { Logo } from "@/components/icons";
 
 export default function TeaFactoryPage() {
   const [userId, setUserId] = useState<string | null>(null);
+  const [userType, setUserType] = useState<string>("");
   const [open, setOpen] = useState(false);
   const [activeComponent, setActiveComponent] = useState("Dashboard");
   const router = useRouter();
@@ -42,8 +42,8 @@ export default function TeaFactoryPage() {
         return;
       }
 
-      if (!user) {
-        router.push("/auth");
+      if (!user || userType === "tea_supplier") {
+        router.push("/auth"); // Redirect if userType is not tea_factory
 
         return;
       }
@@ -121,13 +121,11 @@ export default function TeaFactoryPage() {
       default:
         return userId ? (
           <Dashboard
-            setActiveComponent={function (component: string): void {
-              throw new Error("Function not implemented.");
-            }}
+            setActiveComponent={setActiveComponent}
             userId={userId || ""}
           />
         ) : (
-          <div className="w-full ">
+          <div className="w-full">
             <Loading />
           </div>
         );
@@ -144,7 +142,6 @@ export default function TeaFactoryPage() {
       <Sidebar open={open} setOpen={setOpen}>
         <SidebarBody className="justify-between gap-10">
           <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
-            {/* {open ? <Logo /> : <LogoIcon />} */}
             <div className="mt-8 flex flex-col gap-2">
               {links.map((link, idx) => (
                 <SidebarLink

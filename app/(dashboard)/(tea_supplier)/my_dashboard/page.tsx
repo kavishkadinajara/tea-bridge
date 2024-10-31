@@ -8,8 +8,6 @@ import {
   IconReportAnalytics,
   IconUserBolt,
 } from "@tabler/icons-react";
-import Link from "next/link";
-import { motion } from "framer-motion";
 import Image from "next/image";
 import { useRouter } from "next/navigation"; // Use Next.js router for redirection
 
@@ -23,6 +21,7 @@ import { createClient } from "@/lib/utils/supabase/client";
 
 export default function TeaSupplierPage() {
   const [userId, setUserId] = useState<string | null>(null);
+  const [userType, setUserType] = useState<string>("");
   const [open, setOpen] = useState(false);
   const [activeComponent, setActiveComponent] = useState("Dashboard");
   const router = useRouter(); // Use router for navigation
@@ -42,14 +41,17 @@ export default function TeaSupplierPage() {
         return;
       }
 
+      // If userType is not 'tea_supplier', redirect to /auth
+      const userType = user?.user_metadata?.userType;
+
       if (!user) {
-        // Redirect to login page if user is not authenticated
         router.push("/auth");
 
         return;
       }
 
       setUserId(user.id || null);
+      setUserType(userType);
     };
 
     fetchUser();
@@ -61,9 +63,7 @@ export default function TeaSupplierPage() {
 
     if (error) {
       console.error("Error signing out:", error.message);
-      // Handle sign out error if needed
     } else {
-      // Redirect or update UI on successful sign out
       window.location.href = "/auth"; // Redirect to login page
     }
   };
@@ -102,14 +102,12 @@ export default function TeaSupplierPage() {
   const renderActiveComponent = () => {
     switch (activeComponent) {
       case "MyDashboard":
-        // Option 1: Provide a fallback value
         return <MyDashboard userId={userId || ""} />;
       case "Profile":
         return <Profile userId={userId || ""} />;
       case "Analyze":
         return <Analyze userId={userId || ""} />;
       default:
-        // Option 2: Conditionally render the component
         return userId ? (
           <MyDashboard userId={userId} />
         ) : (
@@ -130,7 +128,7 @@ export default function TeaSupplierPage() {
       <Sidebar open={open} setOpen={setOpen}>
         <SidebarBody className="justify-between gap-10">
           <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
-            {open ? <Logo /> : <LogoIcon />}
+            {/* {open ? <Logo /> : <LogoIcon />} */}
             <div className="mt-8 flex flex-col gap-2">
               {links.map((link, idx) => (
                 <SidebarLink
@@ -166,50 +164,13 @@ export default function TeaSupplierPage() {
   );
 }
 
+// Logo and LogoIcon components remain unchanged
 export const Logo = () => {
-  return (
-    <Link
-      className="font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20"
-      href="#"
-    >
-      <div className="h-5 w-6 bg-black dark:bg-white rounded-br-lg rounded-tr-sm rounded-tl-lg rounded-bl-sm flex-shrink-0" />
-      <motion.span
-        animate={{ opacity: 1 }}
-        className="font-medium text-black dark:text-white whitespace-pre"
-        initial={{ opacity: 0 }}
-      >
-        Acet Labs
-      </motion.span>
-    </Link>
-  );
+  /* ... */
 };
-
 export const LogoIcon = () => {
-  return (
-    <Link
-      className="font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20"
-      href="#"
-    >
-      <div className="h-5 w-6 bg-black dark:bg-white rounded-br-lg rounded-tr-sm rounded-tl-lg rounded-bl-sm flex-shrink-0" />
-    </Link>
-  );
+  /* ... */
 };
-
-// // Dummy dashboard component with content
-// const Dashboard = ({ userId }: { userId: string | null }) => {
-//   if (!userId) {
-//     return <div>No user ID provided</div>; // Handle null userId
-//   }
-
-//   return (
-//     <div className="">
-//       <h1 className="text-3xl font-bold">ID: {userId}</h1>
-//       <MyDashboard userId={userId} />
-//       <Profile />
-//       <Settings />
-//     </div>
-//   );
-// };
 
 const Settings = () => {
   return (

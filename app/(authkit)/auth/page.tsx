@@ -35,7 +35,6 @@ export default function AuthPage({}: { status: string }) {
 
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
-  const [registerEmail, setRegisterEmail] = useState("");
 
   const [authCard, setAuthCard] = useState("Sign In");
 
@@ -271,13 +270,11 @@ export default function AuthPage({}: { status: string }) {
 
       // Redirect based on user type
       const userType = data?.user?.user_metadata?.userType;
-      const userEmail = data?.user?.user_metadata?.email;
-      const userId = userEmail ? userEmail.split("@")[0] : null;
 
       if (userType === "tea_supplier") {
-        router.push(`/my_dashboard/${userId}`);
+        router.push(`/my_dashboard`);
       } else {
-        router.push(`/dashboard/${userId}`);
+        router.push(`/dashboard/`);
       }
     } catch (error) {
       console.error("Unexpected error:", error);
@@ -288,13 +285,13 @@ export default function AuthPage({}: { status: string }) {
   };
 
   return (
-    <div className="flex md:flex-col lg:flex-row overflow-x-hidden w-full  justify-center items-center space-x-8">
+    <div className="flex md:flex-col lg:flex-row overflow-x-hidden w-full  justify-center items-center space-x-2">
       <div className="hidden md:block ">
         <LoginHero />
       </div>
 
-      <div className="flex flex-col justify-center items-center min-h-[680px] mt-4 px-0 md:px-0 lg:px-8">
-        <div className="lg:col-span-1 md:shadow-lg m-6 md:shadow-cyan-600 md:hover:shadow-lime-500 rounded-3xl">
+      <div className="flex flex-col justify-center items-center min-h-[730px] mt-4 ">
+        <div className=" md:shadow-lg m-6 md:shadow-cyan-600 md:hover:shadow-lime-500 rounded-3xl">
           <div className="flex flex-auto justify-center md:mb-4">
             <div className="z-50">
               <Link href={"/"}>
