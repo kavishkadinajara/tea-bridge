@@ -163,19 +163,3 @@ export default function TeaSupplierPage() {
     </div>
   );
 }
-
-// Logo and LogoIcon components remain unchanged
-export const Logo = () => {
-  /* ... */
-};
-export const LogoIcon = () => {
-  /* ... */
-};
-
-const Settings = () => {
-  return (
-    <div className="w-full h-full">
-      <div>Settings</div>
-    </div>
-  );
-};
