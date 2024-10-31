@@ -5,7 +5,6 @@
 import { Input } from "@nextui-org/input";
 import { Select, SelectItem } from "@nextui-org/react";
 import clsx from "clsx";
-import CryptoJS from "crypto-js";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
@@ -22,8 +21,8 @@ import { createClient } from "@/lib/utils/supabase/client"; // Ensure this is th
 export default function AuthPage() {
   const router = useRouter();
 
-  const [isErrorMsg, setErrorMsg] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
 
   const [isVisibleR, setIsVisibleR] = useState(false);
   const [isVisibleL, setIsVisibleL] = useState(false);
@@ -41,7 +40,7 @@ export default function AuthPage() {
       prevAuthCard === "Sign In" ? "Sign Up" : "Sign In",
     );
     setError("");
-    setErrorMsg("");
+    setMessage("");
     setLoginPassword("");
     setLoginEmail("");
   }
@@ -57,7 +56,6 @@ export default function AuthPage() {
 
     if (name === "email" && !isValidEmail(value)) {
       setError("Invalid email format! Enter correct email.");
-      setErrorMsg("Invalid email format! Enter correct email.");
       toast.error("Invalid email format");
       setLoginEmail("");
 
@@ -71,8 +69,7 @@ export default function AuthPage() {
 
     // Clear error message if the email becomes valid
     if (name === "email" && isValidEmail(value)) {
-      setError(null);
-      setErrorMsg(null);
+      setError("");
     }
   };
 
@@ -89,7 +86,6 @@ export default function AuthPage() {
 
     if (!email || !password || !userType) {
       setError("All fields are required!");
-      setErrorMsg("All fields are required!");
       toast.error("All fields are required!");
 
       return;
@@ -98,6 +94,21 @@ export default function AuthPage() {
     const supabase = createClient();
 
     try {
+      // Password format validation
+      const password = loginPassword; // Assuming loginPassword is the password input value
+      const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
+
+      if (!passwordRegex.test(password)) {
+        setError(
+          "Password must be at least 8 characters long and contain both letters and numbers.",
+        );
+        toast.error(
+          "Password must be at least 8 characters long and contain both letters and numbers.",
+        );
+
+        return;
+      }
+
       // Attempt to sign up the user
       const { data, error } = await supabase.auth.signUp({
         email: email,
@@ -107,18 +118,20 @@ export default function AuthPage() {
         },
       });
 
+      // Existing error handling code
       if (error) {
         // Check if the error message indicates that the email is already used
         if (error.message.includes("already registered")) {
           setError("This email is already used!");
-          setErrorMsg("This email is already used!");
           toast.error("This email is already used!");
         } else {
           // Handle other sign-up errors
-          console.error("Error signing up!", error.message);
-          setError("Error signing up!");
-          setErrorMsg("Error signing up!");
-          toast.error("Error signing up!");
+          console.error(
+            "Error signing up☹️... please try again!",
+            error.message,
+          );
+          setError("Error signing up☹️... please try again!");
+          toast.error("Error signing up☹️... please try again!");
         }
         setLoginPassword(""); // Clear password field on error
 
@@ -135,15 +148,13 @@ export default function AuthPage() {
       }
 
       // Success message
-      setError("Account created successfully!");
-      setErrorMsg("Account created successfully!");
+      setMessage("Account created successfully!");
       toast.success("Account created successfully!");
       setAuthCard("Sign In");
     } catch (error) {
       console.error("Unexpected error during account creation:", error);
-      setError("Please try again!");
-      setErrorMsg("Please try again!");
-      toast.error("Unexpected error during sign-up!");
+      setError("Error signing up☹️... please try again!");
+      toast.error("Error signing up☹️... please try again!");
       setLoginPassword(""); // Clear password field on unexpected error
     }
   };
@@ -155,7 +166,6 @@ export default function AuthPage() {
 
     if (!isValidEmail(email)) {
       setError("Invalid email format! Enter correct email.");
-      setErrorMsg("Invalid email format! Enter correct email.");
       toast.error("Invalid email format");
 
       return;
@@ -193,13 +203,9 @@ export default function AuthPage() {
             .eq("email", email);
 
           setError("Your account is now unlocked. Please try again.");
-          setErrorMsg("Your account is now unlocked. Please try again.");
           toast.success("Your account is now unlocked. Please try again.");
         } else {
           setError(`Account is locked. Try again in ${remainingTime} minutes.`);
-          setErrorMsg(
-            `Account is locked. Try again in ${remainingTime} minutes.`,
-          );
           toast.error(
             `Account is locked. Try again in ${remainingTime} minutes`,
           );
@@ -239,7 +245,6 @@ export default function AuthPage() {
         }
 
         setError("Invalid username or password! Please try again.");
-        setErrorMsg("Invalid username or password! Please try again.");
         toast.error("Invalid username or password! Please try again.");
 
         return;
@@ -258,8 +263,7 @@ export default function AuthPage() {
       }
 
       // Display success messages
-      setError("Logged in successfully!");
-      setErrorMsg("Logged in successfully!");
+      setMessage("Logged in successfully!");
       toast.success("Logged in successfully!");
 
       // Redirect based on user type
@@ -273,7 +277,6 @@ export default function AuthPage() {
     } catch (error) {
       console.error("Unexpected error:", error);
       setError("Please try again!");
-      setErrorMsg("Please try again!");
       toast.error("Unexpected error during sign-in");
     }
   };
@@ -305,9 +308,9 @@ export default function AuthPage() {
             </div>
             <br />
           </div>
-          {/*///////////////////////////////////////////////// FORMS/////////////////////////////////////////////////////////////////////// */}
+          {/*/////////////////////////////////////////////////FORMS/////////////////////////////////////////////////////////////////////// */}
           <div className="flex justify-center items-center">
-            {/* ///////////////////////////////////////////////////REGISTER FORM ////////////////////////////////////////////////////////////*/}
+            {/* ///////////////////////////////////////////////////REGISTER FORM////////////////////////////////////////////////////////////*/}
             <div className="flex justify-center items-center" id="register">
               <motion.div
                 animate={{
@@ -486,7 +489,7 @@ export default function AuthPage() {
                     />
                   </div>
                   <div className="flex justify-center">
-                    <button
+                    <Link
                       className={clsx(
                         "text-cyan-600 text-sm mt-4 hover:text-lime-600 text-center",
                         {
@@ -494,10 +497,10 @@ export default function AuthPage() {
                             authCard === "Sign Up",
                         },
                       )}
-                      disabled={authCard === "Sign Up"}
+                      href="/reset-password"
                     >
                       Forgot your password?
-                    </button>
+                    </Link>
                   </div>
                   <div className="flex justify-center">
                     <button
@@ -527,8 +530,17 @@ export default function AuthPage() {
               </motion.div>
             </div>
           </div>
-          <div>
-            <h2 className="text-lg text-red-700 text-center">{isErrorMsg}</h2>
+          <div className="-pt-12">
+            {message && (
+              <p className="mt-4 text-sm font-medium text-center rounded-3xl p-2 text-green-300 bg-green-900/30 shadow-lg shadow-green-500/20 animate-fadeIn">
+                {message}
+              </p>
+            )}
+            {error && (
+              <p className="mt-4 text-sm font-medium text-center rounded-3xl p-2 text-red-300 bg-red-900/30 shadow-lg shadow-red-500/20 animate-fadeIn">
+                {error}
+              </p>
+            )}
           </div>
         </div>
       </div>
