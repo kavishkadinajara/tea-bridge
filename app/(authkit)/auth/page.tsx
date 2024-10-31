@@ -79,6 +79,17 @@ export default function AuthPage() {
     return emailRegex.test(email);
   }
 
+  const clearFormData = () => {
+    setFormData({ email: "", password: "", userType: "" });
+    setError("");
+    setMessage("");
+  };
+
+  const toggleAuthCard = (cardType: string) => {
+    setAuthCard(cardType);
+    clearFormData();
+  };
+
   // ///////////////////////////////////////////// SIGN UP HANDELING /////////////////////////////////////////////
   const createAccount = async (e: FormEvent) => {
     e.preventDefault();
@@ -95,7 +106,6 @@ export default function AuthPage() {
 
     try {
       // Password format validation
-      const password = loginPassword; // Assuming loginPassword is the password input value
       const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
 
       if (!passwordRegex.test(password)) {
@@ -133,7 +143,7 @@ export default function AuthPage() {
           setError("Error signing up☹️... please try again!");
           toast.error("Error signing up☹️... please try again!");
         }
-        setLoginPassword(""); // Clear password field on error
+        setFormData({ ...formData, password: "" }); // Clear password field on error
 
         return;
       }
@@ -150,12 +160,12 @@ export default function AuthPage() {
       // Success message
       setMessage("Account created successfully!");
       toast.success("Account created successfully!");
-      setAuthCard("Sign In");
+      toggleAuthCard("Sign In");
     } catch (error) {
       console.error("Unexpected error during account creation:", error);
       setError("Error signing up☹️... please try again!");
       toast.error("Error signing up☹️... please try again!");
-      setLoginPassword(""); // Clear password field on unexpected error
+      setFormData({ ...formData, password: "" }); // Clear password field on unexpected error
     }
   };
 
