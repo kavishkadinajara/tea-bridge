@@ -19,9 +19,7 @@ import { SelectorIcon } from "@/components/SelectorIcon";
 import { userType } from "@/config/data";
 import { createClient } from "@/lib/utils/supabase/client"; // Ensure this is the correct path to your supabaseClient.js
 
-const SECRET_KEY = "your-secret-key"; // Replace with your actual secret key
-
-export default function AuthPage({}: { status: string }) {
+export default function AuthPage() {
   const router = useRouter();
 
   const [isErrorMsg, setErrorMsg] = useState<string | null>(null);
@@ -76,10 +74,6 @@ export default function AuthPage({}: { status: string }) {
       setError(null);
       setErrorMsg(null);
     }
-  };
-
-  const encryptData = (data: string) => {
-    return CryptoJS.AES.encrypt(data, SECRET_KEY).toString();
   };
 
   function isValidEmail(email: string): boolean {
