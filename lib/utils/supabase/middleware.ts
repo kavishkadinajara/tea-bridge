@@ -39,7 +39,7 @@ export const updateSession = async (request: NextRequest) => {
 
     // Route to `/auth` if no user and trying to access `/dashboard` or `/my_dashboard`
     if (
-      request.nextUrl.pathname.startsWith("/dashboard") ||
+      request.nextUrl.pathname.startsWith("/tea-factory/dashboard") ||
       request.nextUrl.pathname.startsWith("/my_dashboard")
     ) {
       if (!data.user) {
@@ -59,7 +59,9 @@ export const updateSession = async (request: NextRequest) => {
       // Redirect to `/my_dashboard` if `userType` is "tea_supplier", otherwise `/dashboard`
       if (request.nextUrl.pathname.startsWith("/auth")) {
         url.pathname =
-          userType === "tea_supplier" ? "/my_dashboard" : "/dashboard";
+          userType === "tea_supplier"
+            ? "/my_dashboard"
+            : "/tea-factory/dashboard";
 
         return NextResponse.redirect(url);
       }
@@ -67,7 +69,7 @@ export const updateSession = async (request: NextRequest) => {
       // Ensure `/dashboard` redirects to `/my_dashboard` if user is `tea_supplier`
       if (
         userType === "tea_supplier" &&
-        request.nextUrl.pathname === "/dashboard"
+        request.nextUrl.pathname === "/tea-factory/dashboard"
       ) {
         url.pathname = "/my_dashboard";
 
@@ -79,7 +81,7 @@ export const updateSession = async (request: NextRequest) => {
         userType !== "tea_supplier" &&
         request.nextUrl.pathname === "/my_dashboard"
       ) {
-        url.pathname = "/dashboard";
+        url.pathname = "/tea-factory/dashboard";
 
         return NextResponse.redirect(url);
       }

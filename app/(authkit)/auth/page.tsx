@@ -282,7 +282,7 @@ export default function AuthPage() {
       if (userType === "tea_supplier") {
         router.push(`/my_dashboard`);
       } else {
-        router.push(`/dashboard/`);
+        router.push(`/tea-factory/dashboard`);
       }
     } catch (error) {
       console.error("Unexpected error:", error);

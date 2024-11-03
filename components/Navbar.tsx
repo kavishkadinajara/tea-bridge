@@ -58,7 +58,7 @@ export const Navbar = () => {
     if (userType === "tea_supplier") {
       router.push(`/my_dashboard`);
     } else {
-      router.push(`/dashboard`);
+      router.push(`/tea-factory/dashboard`);
     }
   };
 

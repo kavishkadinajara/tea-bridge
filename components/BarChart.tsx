@@ -1,3 +1,4 @@
+"use client";
 import React, { useEffect, useRef } from "react";
 import { Bar } from "react-chartjs-2";
 import {
@@ -20,16 +21,43 @@ ChartJS.register(
   Legend,
 );
 
-const BarChart = ({ data }) => {
-  const chartRef = useRef(null);
+interface BarChartData {
+  label: string;
+  quantity: number;
+}
 
-  const chartData = {
+interface BarChartProps {
+  data: BarChartData[];
+}
+
+const BarChart: React.FC<BarChartProps> = ({ data }) => {
+  const chartRef = useRef<ChartJS<"bar"> | null>(null);
+
+  interface ChartData {
+    labels: string[];
+    datasets: Dataset[];
+  }
+
+  interface Dataset {
+    label: string;
+    data: number[];
+    backgroundColor: (context: any) => CanvasGradient;
+    borderColor: string;
+    borderWidth: number;
+    borderRadius: number;
+    hoverBackgroundColor: string;
+    hoverBorderColor: string;
+    hoverBorderWidth: number;
+    barThickness?: number | "flex";
+  }
+
+  const chartData: ChartData = {
     labels: data.map((d) => d.label),
     datasets: [
       {
         label: "Tea Leaves Collected",
         data: data.map((d) => d.quantity),
-        backgroundColor: (context) => {
+        backgroundColor: (context: any) => {
           const ctx = context.chart.ctx;
           const gradient = ctx.createLinearGradient(0, 0, 0, 400);
 
@@ -44,11 +72,7 @@ const BarChart = ({ data }) => {
         hoverBackgroundColor: "rgba(29, 98, 14, 1)",
         hoverBorderColor: "rgba(0, 100, 0, 1)",
         hoverBorderWidth: 2,
-        barThickness: (context) => {
-          const width = context.chart.width;
-
-          return width < 600 ? 15 : 50;
-        },
+        barThickness: 50, // or "flex" if you prefer
       },
     ],
   };
@@ -58,11 +82,11 @@ const BarChart = ({ data }) => {
     maintainAspectRatio: false,
     plugins: {
       legend: {
-        position: "top",
+        position: "top" as const,
         labels: {
           font: {
             size: 14,
-            weight: "bold",
+            weight: "bold" as const,
             family: "'Poppins', sans-serif",
           },
           color: "#333",
@@ -114,7 +138,7 @@ const BarChart = ({ data }) => {
   useEffect(() => {
     return () => {
       if (chartRef.current) {
-        chartRef.current.destroy();
+        chartRef.current?.destroy();
       }
     };
   }, []);
