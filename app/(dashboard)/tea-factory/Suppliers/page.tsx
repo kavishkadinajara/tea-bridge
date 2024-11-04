@@ -13,10 +13,6 @@ import {
 } from "@nextui-org/react";
 import { motion } from "framer-motion"; // For animations
 
-interface SuppliersProps {
-  userId: string;
-}
-
 interface Supplier {
   name: string;
   status: string;
@@ -25,7 +21,7 @@ interface Supplier {
   requestDatetime?: string;
 }
 
-const Suppliers: React.FC<SuppliersProps> = ({ userId }) => {
+export default function Suppliers() {
   const [searchTerm, setSearchTerm] = useState("");
 
   const pendingSuppliers: Supplier[] = [
@@ -119,11 +115,11 @@ const Suppliers: React.FC<SuppliersProps> = ({ userId }) => {
           >
             <Input
               fullWidth
+              isClearable
               className="mb-4"
               placeholder="Search suppliers..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              isClearable
             //   bordered
               label="Search by Name or Tea Number"
             />
@@ -186,6 +182,4 @@ const Suppliers: React.FC<SuppliersProps> = ({ userId }) => {
       </Tabs>
     </div>
   );
-};
-
-export default Suppliers;
+}
