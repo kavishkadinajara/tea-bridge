@@ -13,18 +13,14 @@ import {
   useDisclosure,
 } from "@nextui-org/react";
 import { Input } from "@nextui-org/react";
+import Link from "next/link";
+import { User } from "next-auth";
 
 import { createClient } from "@/lib/utils/supabase/client";
 
-interface MyDashboardProps {
-  userId: string;
-  setActiveComponent: (component: string) => void; // Add this prop to allow tab switching
-}
+type SessionState = { user: User } | null;
 
-const MyDashboard: React.FC<MyDashboardProps> = ({
-  userId,
-  setActiveComponent,
-}) => {
+export default function DashboardPage() {
   const supabase = createClient();
 
   const [factoryData, setFactoryData] = useState({
@@ -35,6 +31,9 @@ const MyDashboard: React.FC<MyDashboardProps> = ({
   const [supplierRequests, setSupplierRequests] = useState(0);
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [teaLeafPrice, setTeaLeafPrice] = useState<number>(0);
+  const [session, setSession] = useState<SessionState>(null);
+  const [userType, setUserType] = useState<string>("");
+  const [userId, setUserId] = useState<string>("");
 
   useEffect(() => {
     const fetchFactory = async () => {
@@ -62,6 +61,20 @@ const MyDashboard: React.FC<MyDashboardProps> = ({
       }
     };
 
+    const fetchSession = async () => {
+      const supabase = createClient();
+      const { data } = await supabase.auth.getUser();
+
+      if (data.user) {
+        setSession({ user: data.user });
+        setUserId(data.user.id || "");
+        setUserType(data.user.user_metadata?.userType || "");
+        console.log("User Type: ", userType);
+        console.log("User ID: ", userId);
+      }
+    };
+
+    fetchSession();
     fetchFactory();
   }, [userId]);
 
@@ -140,12 +153,12 @@ const MyDashboard: React.FC<MyDashboardProps> = ({
         </div>
 
         <div className="flex flex-col items-center justify-center py-6">
-          <button
-            className="w-full lg:w-1/2 px-4 py-2 border-cyan-600 hover:border-lime-500 border-2 shadow-md shadow-cyan-600 hover:shadow-lime-600 transition-shadow duration-300 hover:shadow-lg text-white font-semibold rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-10"
-            onClick={() => setActiveComponent("Suppliers")}
+          <Link
+            className="w-full lg:w-1/2 px-4 py-2 border-cyan-600 hover:border-lime-500 border-2 shadow-md shadow-cyan-600 hover:shadow-lime-600 transition-shadow duration-300 hover:shadow-lg text-white font-semibold rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-10 text-center"
+            href={"/tea-factory/suppliers"}
           >
             View Suppliers
-          </button>
+          </Link>
         </div>
       </div>
 
@@ -185,6 +198,4 @@ const MyDashboard: React.FC<MyDashboardProps> = ({
       </Modal>
     </div>
   );
-};
-
-export default MyDashboard;
+}

@@ -3,14 +3,13 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
+import { User } from "next-auth";
 
 import { createClient } from "@/lib/utils/supabase/client"; // Adjust path
 
-interface ProfileProps {
-  userId: string;
-}
+type SessionState = { user: User } | null;
 
-const Profile: React.FC<ProfileProps> = ({ userId }) => {
+export default function ProfilePage(){
   const [towns, setTowns] = useState<string[]>([]);
   const [isEditing, setIsEditing] = useState(false);
   const [originalProfileData, setOriginalProfileData] = useState({
@@ -34,6 +33,7 @@ const Profile: React.FC<ProfileProps> = ({ userId }) => {
 
   const [file, setFile] = useState<File | null>(null); // To handle image file
   const [imagePreview, setImagePreview] = useState<string>("");
+  const [userId, setUserId] = useState<string>("");
 
   const supabase = createClient();
 
@@ -78,6 +78,16 @@ const Profile: React.FC<ProfileProps> = ({ userId }) => {
       }
     };
 
+    const fetchSession = async () => {
+      const supabase = createClient();
+      const { data } = await supabase.auth.getUser();
+
+      if (data.user) {
+        setUserId(data.user.id || "");
+      }
+    };
+
+    fetchSession();
     fetchProfile();
 
     // Fetch town options dynamically
@@ -174,7 +184,7 @@ const Profile: React.FC<ProfileProps> = ({ userId }) => {
 
   return (
     <div className="w-full h-full lg:p-8">
-      <div className="container mx-auto  rounded-xl p-8">
+      <div className="container mx-auto  rounded-lg p-8">
         <h2 className="text-3xl font-bold text-center text-gray-800 dark:text-gray-100 mb-8">
           {profileData.factoryName} Profile
         </h2>
@@ -209,7 +219,7 @@ const Profile: React.FC<ProfileProps> = ({ userId }) => {
               Factory Name
             </label>
             <input
-              className={`w-full p-3 rounded-xl border ${
+              className={`w-full p-3 rounded-lg border ${
                 isEditing
                   ? "border-lime-500 bg-white"
                   : "border-gray-300 bg-gray-100"
@@ -227,7 +237,7 @@ const Profile: React.FC<ProfileProps> = ({ userId }) => {
               Mobile Number
             </label>
             <input
-              className={`w-full p-3 rounded-xl border ${
+              className={`w-full p-3 rounded-lg border ${
                 isEditing
                   ? "border-lime-500 bg-white"
                   : "border-gray-300 bg-gray-100"
@@ -243,7 +253,7 @@ const Profile: React.FC<ProfileProps> = ({ userId }) => {
           <div>
             <label className="text-gray-700 dark:text-gray-200">Address</label>
             <input
-              className={`w-full p-3 rounded-xl border ${
+              className={`w-full p-3 rounded-lg border ${
                 isEditing
                   ? "border-lime-500 bg-white"
                   : "border-gray-300 bg-gray-100"
@@ -260,7 +270,7 @@ const Profile: React.FC<ProfileProps> = ({ userId }) => {
             <label className="text-gray-700 dark:text-gray-200">Town</label>
             {isEditing ? (
               <select
-                className="w-full p-3 rounded-xl border border-lime-500 bg-white text-gray-800 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200"
+                className="w-full p-3 rounded-lg border border-lime-500 bg-white text-gray-800 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200"
                 value={profileData.town}
                 onChange={(e) => handleInputChange(e, "town")}
               >
@@ -277,7 +287,7 @@ const Profile: React.FC<ProfileProps> = ({ userId }) => {
             ) : (
               <input
                 disabled
-                className="w-full p-3 rounded-xl border border-gray-300 bg-gray-100 text-gray-800 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200"
+                className="w-full p-3 rounded-lg border border-gray-300 bg-gray-100 text-gray-800 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200"
                 value={profileData.town}
               />
             )}
@@ -288,7 +298,7 @@ const Profile: React.FC<ProfileProps> = ({ userId }) => {
             <label className="text-gray-700 dark:text-gray-200">Email</label>
             <input
               disabled
-              className="w-full p-3 rounded-xl border border-gray-300 bg-gray-100 text-gray-800 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200"
+              className="w-full p-3 rounded-lg border border-gray-300 bg-gray-100 text-gray-800 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200"
               type="email"
               value={profileData.email}
             />
@@ -300,7 +310,7 @@ const Profile: React.FC<ProfileProps> = ({ userId }) => {
               Description
             </label>
             <textarea
-              className={`w-full p-3 rounded-xl border ${
+              className={`w-full p-3 rounded-lg border ${
                 isEditing
                   ? "border-lime-500 bg-white"
                   : "border-gray-300 bg-gray-100"
@@ -317,13 +327,13 @@ const Profile: React.FC<ProfileProps> = ({ userId }) => {
           {isEditing ? (
             <>
               <button
-                className="p-3 rounded-xl bg-lime-500 hover:bg-lime-600 text-white font-bold"
+                className="w-full lg:w-1/2 px-4 py-2 border-cyan-600 hover:border-lime-500 border-2 shadow-md shadow-cyan-600 hover:shadow-lime-600 transition-shadow duration-300 hover:shadow-lg text-white font-semibold rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-10 text-center"
                 onClick={toggleEdit}
               >
                 Save
               </button>
               <button
-                className="p-3 rounded-xl bg-red-500 hover:bg-red-600 text-white font-bold"
+                className="w-full lg:w-1/2 px-4 py-2 border-red-600 hover:border-rose-500 border-2 shadow-md shadow-red-600 hover:shadow-rose-600 transition-shadow duration-300 hover:shadow-lg text-white font-semibold rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-10 text-center"
                 onClick={handleCancel}
               >
                 Cancel
@@ -331,7 +341,7 @@ const Profile: React.FC<ProfileProps> = ({ userId }) => {
             </>
           ) : (
             <button
-              className="p-3 rounded-xl bg-lime-500 hover:bg-lime-600 text-white font-bold"
+              className="w-full lg:w-1/2 px-4 py-2 border-cyan-600 hover:border-lime-500 border-2 shadow-md shadow-cyan-600 hover:shadow-lime-600 transition-shadow duration-300 hover:shadow-lg text-white font-semibold rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-10 text-center"
               onClick={toggleEdit}
             >
               Edit
@@ -343,4 +353,3 @@ const Profile: React.FC<ProfileProps> = ({ userId }) => {
   );
 };
 
-export default Profile;

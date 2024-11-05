@@ -1,9 +1,6 @@
 import React from "react";
-import BarChart from "@/components/BarChart";
 
-interface AnalyzeProps {
-  userId: string;
-}
+import BarChart from "@/components/BarChart";
 
 const barChartData = [
   { label: "Jan", quantity: 730 },
@@ -18,18 +15,16 @@ const barChartData = [
   { label: "Oct", quantity: 620 },
 ];
 
-const Analyze: React.FC<AnalyzeProps> = ({ userId }) => {
+export default function Analyze() {
   return (
     <section className="px-10 py-10">
-      <div className="text-center">
-        <h1 className="md:text-3xl text-lg font-bold text-gray-800 dark:text-white">
-          Tea Leaves Collection Data
-        </h1>
-        <p className="mt-4 md:text-lg text-gray-600 dark:text-gray-400">
-          A detailed overview of your tea leaves collected over the past nine
-          months.
-        </p>
-      </div>
+      <h1 className="md:text-3xl text-lg font-bold text-gray-800 dark:text-white">
+        Tea Leaves Collection Data
+      </h1>
+      <p className="mt-4 md:text-lg text-gray-600 dark:text-gray-400">
+        A detailed overview of your tea leaves collected over the past nine
+        months.
+      </p>
       <div className="mt-12 flex justify-center w-full">
         <div className="w-full max-w-4xl">
           <BarChart data={barChartData} />
@@ -37,6 +32,4 @@ const Analyze: React.FC<AnalyzeProps> = ({ userId }) => {
       </div>
     </section>
   );
-};
-
-export default Analyze;
+}
