@@ -1,92 +1,205 @@
+/* eslint-disable no-console */
 "use client";
 import Image from "next/image";
-import React from "react";
+import React, { useState, useEffect } from "react";
+import Select from "react-select";
 
 import { Carousel, Card } from "@/components/ui/tea_factory-cards-carousel";
+import { createClient } from "@/lib/utils/supabase/client";
 
 export default function TeaFactories() {
-  const cards = data.map((card, index) => (
-    <Card key={card.src} card={card} index={index} />
+  const [selectedTowns, setSelectedTowns] = useState<string[]>([]);
+  const [userFactories, setUserFactories] = useState<
+    { src: string; title: string; category: string; content: string }[]
+  >([]);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [townOptions, setTownOptions] = useState<
+    { value: string; label: string }[]
+  >([]);
+  const [factories, setFactories] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const supabase = createClient();
+      const { data, error } = await supabase.auth.getUser();
+
+      if (error) {
+        console.error("Error fetching user:", error);
+      } else if (data.user) {
+        setUserId(data.user.id || "");
+        fetchUserFactories(data.user.id);
+        fetchUserTown(data.user.id);
+      } else {
+        fetchRandomFactories();
+      }
+    };
+
+    // Fetch town options dynamically
+    fetch("/api/v2/town")
+      .then((res) => res.json())
+      .then((data) => {
+        setTownOptions(
+          data.towns.map((town: string) => ({ value: town, label: town })),
+        );
+      })
+      .catch((error) => console.error("Error fetching towns:", error));
+
+    fetchUser();
+  }, []);
+
+  const fetchUserTown = async (userId: string) => {
+    const supabase = createClient();
+    const { data, error } = await supabase
+      .from("profiles_suppliers")
+      .select("town")
+      .eq("id", userId)
+      .single();
+
+    if (error) {
+      console.error("Error fetching user town:", error);
+    } else {
+      const userTown = data?.town || "";
+
+      fetchUserFactories(userTown);
+
+      return data.town;
+    }
+  };
+
+  const fetchUserFactories = async (userTown: string) => {
+    const supabase = createClient();
+    const { data: factories, error } = await supabase
+      .from("profiles_factories")
+      .select("*")
+      .eq("town", userTown);
+
+    if (error) {
+      console.error("Error fetching user factories:", error);
+    } else {
+      setUserFactories(factories);
+    }
+  };
+
+  const fetchRandomFactories = async () => {
+    const supabase = createClient();
+    const { data: factories, error } = await supabase
+      .from("profiles_factories")
+      .select("*")
+      .limit(10)
+      .order("random()");
+
+    if (error) {
+      console.error("Error fetching random factories:", error);
+    } else {
+      setFactories(factories);
+    }
+  };
+
+  useEffect(() => {
+    if (selectedTowns.length > 0) {
+      const fetchFactoriesByTown = async () => {
+        const supabase = createClient();
+        const { data: factories, error } = await supabase
+          .from("tea_factories")
+          .select("*")
+          .in("town", selectedTowns);
+
+        if (error) {
+          console.error("Error fetching factories by town:", error);
+        } else {
+          setFactories(factories);
+        }
+      };
+
+      fetchFactoriesByTown();
+    }
+  }, [selectedTowns]);
+
+  const handleTownChange = (selectedOptions: any) => {
+    setSelectedTowns(selectedOptions.map((option: any) => option.value));
+  };
+
+  const townCards = factories.map((factory) => (
+    <div
+      key={factory.id}
+      className="p-6 bg-white rounded-lg shadow-lg transition-transform transform hover:scale-105"
+    >
+      <div className="relative w-32 h-32 mx-auto mb-4">
+        <Image
+          alt="Factory Photo"
+          className="rounded-full shadow-md"
+          layout="fill"
+          objectFit="cover"
+          src={factory.profile_photo || "/default-avatar.jpg"}
+        />
+      </div>
+      <h3 className="text-xl font-bold text-center">{factory.factory_name}</h3>
+      <p className="text-center text-gray-600">{factory.address}</p>
+      <p className="text-center text-gray-500">{factory.telephone}</p>
+      <p className="text-center text-sm text-gray-400">{factory.description}</p>
+    </div>
+  ));
+
+  const userCards = userFactories.map((card, index) => (
+    <Card
+      key={card.src}
+      card={{
+        ...card,
+        title: card.title,
+        category: card.category,
+        content: card.content,
+      }}
+      index={index}
+    />
   ));
 
   return (
-    <div className="w-full h-full py-20">
-      <h2 className="max-w-7xl pl-4 mx-auto text-xl md:text-5xl font-bold text-neutral-800 dark:text-neutral-200 font-sans">
-        Get to know your iSad.
+    <div className="w-full h-full py-20 text-white">
+      <h2 className="max-w-7xl pl-4 mx-auto text-3xl md:text-5xl font-bold mb-8 text-center">
+        Select Your Tea Factory🫡
       </h2>
-      <Carousel items={cards} />
+
+      <div className="max-w-2xl mx-auto mb-8">
+        <h3 className="text-lg font-bold mb-2">Select Town(s):</h3>
+        <Select
+          isMulti
+          className="text-black"
+          options={townOptions}
+          placeholder="Select one or more towns"
+          onChange={handleTownChange}
+        />
+      </div>
+
+      {selectedTowns.length > 0 && (
+        <div className="max-w-7xl mx-auto">
+          <h3 className="text-xl font-bold text-center mb-4">
+            Tea Factories in Selected Towns:
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {townCards}
+          </div>
+        </div>
+      )}
+
+      {userId && userFactories.length > 0 ? (
+        <div className="mt-12 max-w-7xl mx-auto">
+          <h3 className="text-xl font-bold text-center mb-4">
+            Tea Factories in Your Area:
+          </h3>
+          <Carousel items={userCards} />
+        </div>
+      ) : (
+        factories.length > 0 && (
+          <div className="mt-12 max-w-7xl mx-auto">
+            <h3 className="text-xl font-bold text-center mb-4">
+              Randomly Selected Tea Factories:
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {townCards}
+            </div>
+          </div>
+        )
+      )}
     </div>
   );
 }
-
-const DummyContent = () => {
-  return (
-    <>
-      {[...new Array(3).fill(1)].map((_, index) => {
-        return (
-          <div
-            key={"dummy-content" + index}
-            className="bg-[#F5F5F7] dark:bg-neutral-800 p-8 md:p-14 rounded-3xl mb-4"
-          >
-            <p className="text-neutral-600 dark:text-neutral-400 text-base md:text-2xl font-sans max-w-3xl mx-auto">
-              <span className="font-bold text-neutral-700 dark:text-neutral-200">
-                The first rule of Apple club is that you boast about Apple club.
-              </span>{" "}
-              Keep a journal, quickly jot down a grocery list, and take amazing
-              class notes. Want to convert those notes to text? No problem.
-              Langotiya jeetu ka mara hua yaar is ready to capture every
-              thought.
-            </p>
-            <Image
-              alt="Macbook mockup from Aceternity UI"
-              className="md:w-1/2 md:h-1/2 h-full w-full mx-auto object-contain"
-              height="500"
-              src="https://assets.aceternity.com/macbook.png"
-              width="500"
-            />
-          </div>
-        );
-      })}
-    </>
-  );
-};
-
-const data = [
-  {
-    category: "Artificial Intelligence",
-    title: "You can do more with AI.",
-    src: "https://images.unsplash.com/photo-1593508512255-86ab42a8e620?q=80&w=3556&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    content: <DummyContent />,
-  },
-  {
-    category: "Productivity",
-    title: "Enhance your productivity.",
-    src: "https://images.unsplash.com/photo-1531554694128-c4c6665f59c2?q=80&w=3387&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    content: <DummyContent />,
-  },
-  {
-    category: "Product",
-    title: "Launching the new Apple Vision Pro.",
-    src: "https://images.unsplash.com/photo-1713869791518-a770879e60dc?q=80&w=2333&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    content: <DummyContent />,
-  },
-
-  {
-    category: "Product",
-    title: "Maps for your iPhone 15 Pro Max.",
-    src: "https://images.unsplash.com/photo-1599202860130-f600f4948364?q=80&w=2515&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    content: <DummyContent />,
-  },
-  {
-    category: "iOS",
-    title: "Photography just got better.",
-    src: "https://images.unsplash.com/photo-1602081957921-9137a5d6eaee?q=80&w=2793&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    content: <DummyContent />,
-  },
-  {
-    category: "Hiring",
-    title: "Hiring for a Staff Software Engineer",
-    src: "https://images.unsplash.com/photo-1511984804822-e16ba72f5848?q=80&w=2048&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    content: <DummyContent />,
-  },
-];

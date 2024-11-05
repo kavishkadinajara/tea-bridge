@@ -3,13 +3,13 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
-import { User } from "next-auth";
+// import { User } from "next-auth";
 
 import { createClient } from "@/lib/utils/supabase/client"; // Adjust path
 
-type SessionState = { user: User } | null;
+// type SessionState = { user: User } | null;
 
-export default function ProfilePage(){
+export default function ProfilePage() {
   const [towns, setTowns] = useState<string[]>([]);
   const [isEditing, setIsEditing] = useState(false);
   const [originalProfileData, setOriginalProfileData] = useState({
