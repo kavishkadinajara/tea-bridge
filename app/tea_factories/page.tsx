@@ -27,8 +27,8 @@ export default function TeaFactories() {
         console.error("Error fetching user:", error);
       } else if (data.user) {
         setUserId(data.user.id || "");
-        fetchUserFactories(data.user.id);
-        fetchUserTown(data.user.id);
+        await fetchUserFactories(data.user.id);
+        await fetchUserTown(data.user.id);
       } else {
         fetchRandomFactories();
       }
@@ -45,24 +45,41 @@ export default function TeaFactories() {
       .catch((error) => console.error("Error fetching towns:", error));
 
     fetchUser();
+    // fetchRandomFactories();
   }, []);
 
   const fetchUserTown = async (userId: string) => {
     const supabase = createClient();
-    const { data, error } = await supabase
+    const { data: supplierData, error: supplierError } = await supabase
       .from("profiles_suppliers")
       .select("town")
       .eq("id", userId)
       .single();
 
-    if (error) {
-      console.error("Error fetching user town:", error);
-    } else {
-      const userTown = data?.town || "";
+    if (supplierError) {
+      console.error("Error fetching user town from suppliers:", supplierError);
+    } else if (supplierData) {
+      const userTown = supplierData.town || "";
 
-      fetchUserFactories(userTown);
+      await fetchUserFactories(userTown);
 
-      return data.town;
+      return userTown;
+    }
+
+    const { data: factoryData, error: factoryError } = await supabase
+      .from("profiles_factories")
+      .select("town")
+      .eq("id", userId)
+      .single();
+
+    if (factoryError) {
+      console.error("Error fetching user town from factories:", factoryError);
+    } else if (factoryData) {
+      const userTown = factoryData.town || "";
+
+      await fetchUserFactories(userTown);
+
+      return userTown;
     }
   };
 
@@ -76,7 +93,7 @@ export default function TeaFactories() {
     if (error) {
       console.error("Error fetching user factories:", error);
     } else {
-      setUserFactories(factories);
+      setUserFactories(factories || []);
     }
   };
 
@@ -91,7 +108,7 @@ export default function TeaFactories() {
     if (error) {
       console.error("Error fetching random factories:", error);
     } else {
-      setFactories(factories);
+      setFactories(factories || []);
     }
   };
 
