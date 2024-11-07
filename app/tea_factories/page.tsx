@@ -201,9 +201,15 @@ export default function TeaFactories() {
           <h3 className="text-xl font-bold text-center mb-4">
             Tea Factories in Selected Towns:
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {townCards}
-          </div>
+          {factories.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {townCards}
+            </div>
+          ) : (
+            <p className="text-center text-gray-500">
+              No factories found for the selected towns.
+            </p>
+          )}
         </div>
       )}
 
@@ -214,17 +220,19 @@ export default function TeaFactories() {
           </h3>
           <Carousel items={userCards} />
         </div>
-      ) : (
-        factories.length > 0 && (
-          <div className="mt-12 max-w-7xl mx-auto">
-            <h3 className="text-xl font-bold text-center mb-4">
-              Randomly Selected Tea Factories:
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {townCards}
-            </div>
+      ) : factories.length > 0 ? (
+        <div className="mt-12 max-w-7xl mx-auto">
+          <h3 className="text-xl font-bold text-center mb-4">
+            Randomly Selected Tea Factories:
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {townCards}
           </div>
-        )
+        </div>
+      ) : (
+        <p className="text-center text-gray-500">
+          No factories available at the moment.
+        </p>
       )}
     </div>
   );
