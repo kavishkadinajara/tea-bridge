@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { createClient } from "@/lib/utils/supabase/server";
+import { createClient } from "@/lib/utils/supabase/client";
 
 export const handleLogout = async () => {
   const supabase = createClient();

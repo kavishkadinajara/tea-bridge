@@ -27,7 +27,7 @@ export default function TeaFactories() {
         console.error("Error fetching user:", error);
       } else if (data.user) {
         setUserId(data.user.id || "");
-        await fetchUserFactories(data.user.id);
+        // await fetchUserFactories(data.user.id);
         await fetchUserTown(data.user.id);
       } else {
         fetchRandomFactories();
@@ -45,7 +45,7 @@ export default function TeaFactories() {
       .catch((error) => console.error("Error fetching towns:", error));
 
     fetchUser();
-    // fetchRandomFactories();
+    fetchRandomFactories();
   }, []);
 
   const fetchUserTown = async (userId: string) => {
@@ -117,7 +117,7 @@ export default function TeaFactories() {
       const fetchFactoriesByTown = async () => {
         const supabase = createClient();
         const { data: factories, error } = await supabase
-          .from("tea_factories")
+          .from("profiles_factories")
           .select("*")
           .in("town", selectedTowns);
 

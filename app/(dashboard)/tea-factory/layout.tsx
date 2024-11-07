@@ -15,6 +15,7 @@ import { Navbar } from "@/components/Navbar";
 import { Sidebar, SidebarBody } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils/cn";
 import { createClient } from "@/lib/utils/supabase/client";
+import { handleLogout } from "@/lib/utils/supabase/logout";
 
 export default function TeaFactoryLayout({
   children,
@@ -52,6 +53,11 @@ export default function TeaFactoryLayout({
 
     fetchUser();
   }, [router]);
+
+  const onLogout = async () => {
+    await handleLogout();
+    router.push("/auth");
+  };
 
   const links = [
     {
@@ -105,11 +111,24 @@ export default function TeaFactoryLayout({
             <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
               <div className="mt-8 flex flex-col gap-2">
                 {links.map((link, idx) => (
-                  <Link key={idx} className="flex gap-x-4" href={link.action()}>
+                  <Link
+                    key={idx}
+                    className="flex gap-x-4 items-center p-2"
+                    href={link.action()}
+                  >
                     {link.icon}
                     {link.label}
                   </Link>
                 ))}
+                <button
+                  className="flex items-center gap-x-4 p-2 rounded-md hover:bg-neutral-200 dark:hover:bg-neutral-700"
+                  onClick={onLogout}
+                >
+                  <>
+                    <IconArrowLeft className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
+                    Logout
+                  </>
+                </button>
               </div>
             </div>
           </SidebarBody>
