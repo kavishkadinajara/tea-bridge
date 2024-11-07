@@ -18,21 +18,22 @@ export default function TeaFactories() {
   >([]);
   const [factories, setFactories] = useState<any[]>([]);
 
+  // Fetch user data and town options on component mount
   useEffect(() => {
     const fetchUser = async () => {
       const supabase = createClient();
-      const { data, error } = await supabase.auth.getUser();
+      const { data } = await supabase.auth.getUser();
 
-      if (error) {
-        console.error("Error fetching user:", error);
-      } else if (data.user) {
+      if (data.user) {
         setUserId(data.user.id || "");
-        // await fetchUserFactories(data.user.id);
         await fetchUserTown(data.user.id);
       } else {
-        fetchRandomFactories();
+        console.log("No user found");
+        await fetchRandomFactories();
       }
     };
+
+    fetchUser();
 
     // Fetch town options dynamically
     fetch("/api/v2/town")
@@ -43,11 +44,9 @@ export default function TeaFactories() {
         );
       })
       .catch((error) => console.error("Error fetching towns:", error));
-
-    fetchUser();
-    fetchRandomFactories();
   }, []);
 
+  // Fetch the user's town based on their ID
   const fetchUserTown = async (userId: string) => {
     const supabase = createClient();
     const { data: supplierData, error: supplierError } = await supabase
@@ -83,6 +82,7 @@ export default function TeaFactories() {
     }
   };
 
+  // Fetch factories based on the user's town
   const fetchUserFactories = async (userTown: string) => {
     const supabase = createClient();
     const { data: factories, error } = await supabase
@@ -97,21 +97,26 @@ export default function TeaFactories() {
     }
   };
 
+  // Fetch random factories if no user is logged in
   const fetchRandomFactories = async () => {
     const supabase = createClient();
     const { data: factories, error } = await supabase
       .from("profiles_factories")
-      .select("*")
-      .limit(10)
-      .order("random()");
+      .select("*");
 
     if (error) {
       console.error("Error fetching random factories:", error);
     } else {
-      setFactories(factories || []);
+      // Shuffle the fetched factories to simulate randomness
+      const shuffledFactories = factories
+        .sort(() => 0.5 - Math.random())
+        .slice(0, 10);
+
+      setFactories(shuffledFactories);
     }
   };
 
+  // Fetch factories based on selected towns
   useEffect(() => {
     if (selectedTowns.length > 0) {
       const fetchFactoriesByTown = async () => {
@@ -132,10 +137,12 @@ export default function TeaFactories() {
     }
   }, [selectedTowns]);
 
+  // Handle town selection change
   const handleTownChange = (selectedOptions: any) => {
     setSelectedTowns(selectedOptions.map((option: any) => option.value));
   };
 
+  // Generate cards for factories in selected towns
   const townCards = factories.map((factory) => (
     <div
       key={factory.id}
@@ -157,6 +164,7 @@ export default function TeaFactories() {
     </div>
   ));
 
+  // Generate cards for user-specific factories
   const userCards = userFactories.map((card, index) => (
     <Card
       key={card.src}
@@ -173,6 +181,7 @@ export default function TeaFactories() {
   return (
     <div className="w-full h-full py-20 text-white">
       <h2 className="max-w-7xl pl-4 mx-auto text-3xl md:text-5xl font-bold mb-8 text-center">
+        {" "}
         Select Your Tea Factory🫡
       </h2>
 
