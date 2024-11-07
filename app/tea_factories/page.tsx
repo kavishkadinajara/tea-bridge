@@ -146,7 +146,7 @@ export default function TeaFactories() {
   const townCards = factories.map((factory) => (
     <div
       key={factory.id}
-      className="p-6 bg-white rounded-lg shadow-lg transition-transform transform hover:scale-105"
+      className="p-6 bg-black rounded-lg shadow-lg transition-transform transform hover:scale-105"
     >
       <div className="relative w-32 h-32 mx-auto mb-4">
         <Image
@@ -160,7 +160,7 @@ export default function TeaFactories() {
       <h3 className="text-xl font-bold text-center">{factory.factory_name}</h3>
       <p className="text-center text-gray-600">{factory.address}</p>
       <p className="text-center text-gray-500">{factory.telephone}</p>
-      <p className="text-center text-sm text-gray-400">{factory.description}</p>
+      {/* <p className="text-center text-sm text-gray-400">{factory.description}</p> */}
     </div>
   ));
 

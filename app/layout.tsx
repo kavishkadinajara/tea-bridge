@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import "@/styles/globals.css";
 import { Metadata, Viewport } from "next";
 import clsx from "clsx";
@@ -8,7 +9,6 @@ import "@/styles/scrollbar.css";
 
 import { siteConfig } from "@/config/site";
 import { fontSans } from "@/config/fonts";
-import { SparklesPreview } from "@/components/SparklesPreview";
 
 // import { Navbar } from "@/components/navbar";
 // import i18n from "@/lib/i18n";
@@ -42,7 +42,7 @@ export default function RootLayout({
       <head />
       <body
         className={clsx(
-          "min-h-screen overflow-x-hidden bg-white dark:bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#0a0015] via-[#00150e] to-black overflow-auto",
+          "min-h-screen overflow-x-hidden bg-white dark:bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#09040b] via-[#000e09] to-black overflow-auto",
           fontSans.variable,
         )}
       >
