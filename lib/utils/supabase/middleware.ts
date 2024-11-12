@@ -91,10 +91,7 @@ export const updateSession = async (request: NextRequest) => {
         userType === "tea_supplier" &&
         request.nextUrl.pathname.startsWith("/tea-factory/")
       ) {
-        url.pathname = request.nextUrl.pathname.replace(
-          "/tea-factory/",
-          "/tea-supplier/",
-        );
+        url.pathname = "/tea-supplier/dashboard";
 
         return NextResponse.redirect(url);
       }
@@ -103,10 +100,7 @@ export const updateSession = async (request: NextRequest) => {
         userType === "tea_factory" &&
         request.nextUrl.pathname.startsWith("/tea-supplier/")
       ) {
-        url.pathname = request.nextUrl.pathname.replace(
-          "/tea-supplier/",
-          "/tea-factory/",
-        );
+        url.pathname = "/tea-factory/dashboard";
 
         return NextResponse.redirect(url);
       }

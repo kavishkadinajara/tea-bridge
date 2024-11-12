@@ -14,11 +14,11 @@ import {
 } from "@nextui-org/react";
 import { Input } from "@nextui-org/react";
 import Link from "next/link";
-import { User } from "next-auth";
+// import { User } from "next-auth";
 
 import { createClient } from "@/lib/utils/supabase/client";
 
-type SessionState = { user: User } | null;
+// type SessionState = { user: User } | null;
 
 export default function DashboardPage() {
   const supabase = createClient();
@@ -44,7 +44,7 @@ export default function DashboardPage() {
   const [teaLeafPrice, setTeaLeafPrice] = useState<number>(0);
 
   // State to hold session information
-  const [session, setSession] = useState<SessionState>(null);
+  // const [session, setSession] = useState<SessionState>(null);
 
   // State to hold user type
   const [userType, setUserType] = useState<string>("");
@@ -62,7 +62,7 @@ export default function DashboardPage() {
         const { data } = await supabase.auth.getUser();
 
         if (data.user) {
-          setSession({ user: data.user });
+          // setSession({ user: data.user });
           setUserId(data.user.id || "");
           setUserType(data.user.user_metadata?.userType || "");
           console.log("User Type: ", userType);
