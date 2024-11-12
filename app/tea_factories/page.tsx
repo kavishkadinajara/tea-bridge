@@ -1,16 +1,24 @@
 /* eslint-disable no-console */
 "use client";
-import Image from "next/image";
 import React, { useState, useEffect } from "react";
 import Select from "react-select";
+import { useTheme } from "next-themes";
 
 import { Carousel, Card } from "@/components/ui/tea_factory-cards-carousel";
 import { createClient } from "@/lib/utils/supabase/client";
 
 export default function TeaFactories() {
+  const { theme } = useTheme();
   const [selectedTowns, setSelectedTowns] = useState<string[]>([]);
   const [userFactories, setUserFactories] = useState<
-    { src: string; title: string; category: string; content: string }[]
+    {
+      id: string;
+      tea_leaf_price: number;
+      factory_name: string;
+      profile_photo: string;
+      town: string;
+      content: string;
+    }[]
   >([]);
   const [userId, setUserId] = useState<string | null>(null);
   const [townOptions, setTownOptions] = useState<
@@ -142,56 +150,51 @@ export default function TeaFactories() {
     setSelectedTowns(selectedOptions.map((option: any) => option.value));
   };
 
-  // Generate cards for factories in selected towns
-  const townCards = factories.map((factory) => (
-    <div
-      key={factory.id}
-      className="p-6 bg-black rounded-lg shadow-lg transition-transform transform hover:scale-105"
-    >
-      <div className="relative w-32 h-32 mx-auto mb-4">
-        <Image
-          alt="Factory Photo"
-          className="rounded-full shadow-md"
-          layout="fill"
-          objectFit="cover"
-          src={factory.profile_photo || "/default-avatar.jpg"}
-        />
-      </div>
-      <h3 className="text-xl font-bold text-center">{factory.factory_name}</h3>
-      <p className="text-center text-gray-600">{factory.address}</p>
-      <p className="text-center text-gray-500">{factory.telephone}</p>
-      {/* <p className="text-center text-sm text-gray-400">{factory.description}</p> */}
-    </div>
-  ));
-
   // Generate cards for user-specific factories
   const userCards = userFactories.map((card, index) => (
     <Card
-      key={card.src}
+      key={card.id}
       card={{
         ...card,
-        title: card.title,
-        category: card.category,
+        factory_name: card.factory_name,
+        town: card.town,
+        tea_leaf_price: card.tea_leaf_price,
         content: card.content,
+        src: card.profile_photo || "/default-factory.png", // Add src property
       }}
       index={index}
     />
   ));
 
   return (
-    <div className="w-full h-full py-20 text-white">
-      <h2 className="max-w-7xl pl-4 mx-auto text-3xl md:text-5xl font-bold mb-8 text-center">
-        {" "}
-        Select Your Tea Factory🫡
+    <div
+      className={`w-full h-full py-20 ${theme === "dark" ? "text-white " : "text-black "}`}
+    >
+      <h2 className="max-w-7xl pl-4 mx-auto text-4xl md:text-6xl font-extrabold mb-10 text-center">
+        Select Your Tea Factory 🫡
       </h2>
 
-      <div className="max-w-2xl mx-auto mb-8">
-        <h3 className="text-lg font-bold mb-2">Select Town(s):</h3>
+      <div className="max-w-2xl mx-auto mb-10 z-50">
+        <h3 className="text-xl font-semibold mb-4">Select Town(s):</h3>
         <Select
           isMulti
-          className="text-black"
+          className="text-black z-50"
           options={townOptions}
           placeholder="Select one or more towns"
+          styles={{
+            control: (base) => ({
+              ...base,
+              borderColor: theme === "dark" ? "#4A5568" : "#CBD5E0",
+              boxShadow: "none",
+              "&:hover": {
+                borderColor: theme === "dark" ? "#A0AEC0" : "#4A5568",
+              },
+            }),
+            menu: (base) => ({
+              ...base,
+              zIndex: 9999,
+            }),
+          }}
           onChange={handleTownChange}
         />
       </div>
@@ -202,8 +205,8 @@ export default function TeaFactories() {
             Tea Factories in Selected Towns:
           </h3>
           {factories.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {townCards}
+            <div className="mt-12 max-w-7xl mx-auto">
+              <Carousel items={userCards} />
             </div>
           ) : (
             <p className="text-center text-gray-500">
@@ -223,11 +226,9 @@ export default function TeaFactories() {
       ) : factories.length > 0 ? (
         <div className="mt-12 max-w-7xl mx-auto">
           <h3 className="text-xl font-bold text-center mb-4">
-            Randomly Selected Tea Factories:
+            Tea Factories in Your Area:
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {townCards}
-          </div>
+          <Carousel items={userCards} />
         </div>
       ) : (
         <p className="text-center text-gray-500">

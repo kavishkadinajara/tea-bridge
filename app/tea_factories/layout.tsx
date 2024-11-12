@@ -9,13 +9,13 @@ export default function TeaFactories({
 }) {
   return (
     <>
-    {/* // <SparklesPreview> */}
-      <Navbar />
-      <div className="container mx-auto max-w-7xl pt-16 px-6 flex-grow">
-        {children}
-      </div>
-      <Footer />
-    {/* </SparklesPreview> */}
+      <SparklesPreview>
+        <Navbar />
+        <div className="container mx-auto max-w-7xl pt-16 px-6 flex-grow">
+          {children}
+        </div>
+        <Footer />
+      </SparklesPreview>
     </>
   );
 }

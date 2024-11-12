@@ -1,8 +1,8 @@
 /* eslint-disable no-console */
 /* eslint-disable jsx-a11y/label-has-associated-control */
 "use client";
-import React, { useEffect, useState } from "react";
 import Image from "next/image";
+import React, { useEffect, useState } from "react";
 
 import { createClient } from "@/lib/utils/supabase/client"; // Adjust path
 
@@ -135,7 +135,7 @@ export default function SupplierProfilePage() {
 
     // Update profile photo in profile data
     const updatedProfilePhoto = imgPath
-      ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/supplier-images/${imgPath}`
+      ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/avatars/${encodeURIComponent(imgPath)}`
       : profileData.profilePhoto;
 
     // Update the profile data in the database

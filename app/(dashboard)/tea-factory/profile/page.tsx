@@ -83,8 +83,8 @@ export default function ProfilePage() {
       const supabase = createClient();
       const { data } = await supabase.auth.getUser();
 
-      if (data.user) {
-        setUserId(data.user.id || "");
+      if (data.user && data.user.id) {
+        setUserId(data.user.id);
       }
     };
 

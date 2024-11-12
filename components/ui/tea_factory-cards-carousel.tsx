@@ -24,8 +24,9 @@ interface CarouselProps {
 
 type Card = {
   src: string;
-  title: string;
-  category: string;
+  factory_name: string;
+  town: string;
+  tea_leaf_price: number;
   content: React.ReactNode;
 };
 
@@ -202,7 +203,7 @@ export const Card = ({
     <>
       <AnimatePresence>
         {open && (
-          <div className="fixed inset-0 h-screen z-50 overflow-auto">
+          <div className="fixed inset-0 h-screen z-40 overflow-auto">
             <motion.div
               animate={{ opacity: 1 }}
               className="bg-black/80 backdrop-blur-lg h-full w-full fixed inset-0"
@@ -215,7 +216,7 @@ export const Card = ({
               className="max-w-5xl mx-auto bg-white dark:bg-neutral-900 h-fit  z-[60] my-10 p-4 md:p-10 rounded-3xl font-sans relative"
               exit={{ opacity: 0 }}
               initial={{ opacity: 0 }}
-              layoutId={layout ? `card-${card.title}` : undefined}
+              layoutId={layout ? `card-${card.factory_name}` : undefined}
             >
               <button
                 className="sticky top-4 h-8 w-8 right-0 ml-auto bg-black dark:bg-white rounded-full flex items-center justify-center"
@@ -225,15 +226,23 @@ export const Card = ({
               </button>
               <motion.p
                 className="text-base font-medium text-black dark:text-white"
-                layoutId={layout ? `category-${card.title}` : undefined}
+                layoutId={layout ? `category-${card.factory_name}` : undefined}
               >
-                {card.category}
+                {card.town}
               </motion.p>
               <motion.p
                 className="text-2xl md:text-5xl font-semibold text-neutral-700 mt-4 dark:text-white"
-                layoutId={layout ? `title-${card.title}` : undefined}
+                layoutId={
+                  layout ? `factory_name-${card.factory_name}` : undefined
+                }
               >
-                {card.title}
+                {card.factory_name}
+              </motion.p>
+              <motion.p
+                className="text-xl md:text-3xl font-semibold text-neutral-700 mt-4 dark:text-white"
+                layoutId={layout ? `price-${card.factory_name}` : undefined}
+              >
+                Price per kilo: {card.tea_leaf_price}
               </motion.p>
               <div className="py-10">{card.content}</div>
             </motion.div>
@@ -242,27 +251,33 @@ export const Card = ({
       </AnimatePresence>
       <motion.button
         className="rounded-3xl bg-gray-100 dark:bg-neutral-900 h-80 w-56 md:h-[40rem] md:w-96 overflow-hidden flex flex-col items-start justify-start relative z-10"
-        layoutId={layout ? `card-${card.title}` : undefined}
+        layoutId={layout ? `card-${card.factory_name}` : undefined}
         onClick={handleOpen}
       >
         <div className="absolute h-full top-0 inset-x-0 bg-gradient-to-b from-black/50 via-transparent to-transparent z-30 pointer-events-none" />
-        <div className="relative z-40 p-8">
+        <div className="relative z-30 p-8">
           <motion.p
             className="text-white text-sm md:text-base font-medium font-sans text-left"
-            layoutId={layout ? `category-${card.category}` : undefined}
+            layoutId={layout ? `category-${card.town}` : undefined}
           >
-            {card.category}
+            {card.town}
           </motion.p>
           <motion.p
             className="text-white text-xl md:text-3xl font-semibold max-w-xs text-left [text-wrap:balance] font-sans mt-2"
-            layoutId={layout ? `title-${card.title}` : undefined}
+            layoutId={layout ? `factory_name-${card.factory_name}` : undefined}
           >
-            {card.title}
+            {card.factory_name}
+          </motion.p>
+          <motion.p
+            className="text-white text-lg md:text-xl font-semibold max-w-xs text-left [text-wrap:balance] font-sans mt-2"
+            layoutId={layout ? `price-${card.factory_name}` : undefined}
+          >
+            Price per kilo: {card.tea_leaf_price}
           </motion.p>
         </div>
         <BlurImage
           fill
-          alt={card.title}
+          alt={card.factory_name}
           className="object-cover absolute z-10 inset-0"
           src={card.src}
         />
