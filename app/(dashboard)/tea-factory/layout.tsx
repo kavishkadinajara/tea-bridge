@@ -12,6 +12,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 import { Navbar } from "@/components/Navbar";
+import Footer from "@/components/Footer";
 import { Sidebar, SidebarBody } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils/cn";
 import { createClient } from "@/lib/utils/supabase/client";
@@ -135,6 +136,7 @@ export default function TeaFactoryLayout({
         </Sidebar>
         {children}
       </div>
+      <Footer />
     </>
   );
 }

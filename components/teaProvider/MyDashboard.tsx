@@ -17,10 +17,10 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faIndustry } from "@fortawesome/free-solid-svg-icons";
 
-import ApplyTeaPowder from "./ApplyTeaPowder";
-import ApplyAdvance from "./ApplyAdvance";
-import ApplyFertilizer from "./ApplyFertilizer";
-import PastTeaProvidingStatus from "./PastTeaProvidingStatus";
+import ApplyTeaPowder from "@/components/teaProvider/ApplyTeaPowder";
+import ApplyAdvance from "@/components/teaProvider/ApplyAdvance";
+import ApplyFertilizer from "@/components/teaProvider/ApplyFertilizer";
+import PastTeaProvidingStatus from "@/components/teaProvider/PastTeaProvidingStatus";
 
 interface MyDashboardProps {
   userId: string;

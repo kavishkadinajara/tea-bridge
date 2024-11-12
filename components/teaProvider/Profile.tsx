@@ -4,7 +4,6 @@
 import React, { useEffect, useState } from "react";
 
 import { createClient } from "@/lib/utils/supabase/client"; // Adjust this path according to your project structure
-import Map from "@/components/Map";
 
 interface ProfileProps {
   userId: string;

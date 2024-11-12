@@ -12,6 +12,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 import { Navbar } from "@/components/Navbar";
+import Footer from "@/components/Footer";
 import { Sidebar, SidebarBody } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils/cn";
 import { createClient } from "@/lib/utils/supabase/client";
@@ -44,28 +45,28 @@ export default function TeaSupplireLayout({
   const links = [
     {
       label: "Dashboard",
-      action: () => "/tea-factory/dashboard",
+      action: () => "/tea-supplier/dashboard",
       icon: (
         <IconBrandTabler className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
       ),
     },
     {
       label: "Profile",
-      action: () => "/tea-factory/profile",
+      action: () => "/tea-supplier/profile",
       icon: (
         <IconUserBolt className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
       ),
     },
     {
       label: "Analyze",
-      action: () => "/tea-factory/analyze",
+      action: () => "/tea-supplier/analyze",
       icon: (
         <IconReportAnalytics className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
       ),
     },
     {
       label: "Suppliers",
-      action: () => "/tea-factory/suppliers",
+      action: () => "/tea-supplier/suppliers",
       icon: (
         <IconUsers className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
       ),
@@ -117,6 +118,7 @@ export default function TeaSupplireLayout({
         </Sidebar>
         {children}
       </div>
+      <Footer />
     </>
   );
 }
