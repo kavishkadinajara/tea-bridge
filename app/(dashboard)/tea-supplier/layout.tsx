@@ -64,20 +64,6 @@ export default function TeaSupplireLayout({
         <IconReportAnalytics className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
       ),
     },
-    {
-      label: "Suppliers",
-      action: () => "/tea-supplier/suppliers",
-      icon: (
-        <IconUsers className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
-      ),
-    },
-    // {
-    //   label: "Logout",
-    //   action: "/app/actions/logout.ts",
-    //   icon: (
-    //     <IconArrowLeft className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
-    //   ),
-    // },
   ];
 
   return (
