@@ -38,6 +38,7 @@ export default function ProfilePage() {
   const supabase = createClient();
 
   useEffect(() => {
+    const supabase = createClient();
     const fetchProfile = async () => {
       try {
         // Fetch profile data

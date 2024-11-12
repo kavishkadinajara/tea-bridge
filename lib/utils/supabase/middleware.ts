@@ -40,7 +40,7 @@ export const updateSession = async (request: NextRequest) => {
     // Route to `/auth` if no user and trying to access `/dashboard` or `/my_dashboard`
     if (
       request.nextUrl.pathname.startsWith("/tea-factory/dashboard") ||
-      request.nextUrl.pathname.startsWith("/my_dashboard")
+      request.nextUrl.pathname.startsWith("/tea-supplier/dashboard")
     ) {
       if (!data.user) {
         const url = request.nextUrl.clone();
@@ -60,7 +60,7 @@ export const updateSession = async (request: NextRequest) => {
       if (request.nextUrl.pathname.startsWith("/auth")) {
         url.pathname =
           userType === "tea_supplier"
-            ? "/my_dashboard"
+            ? "/tea-supplier/dashboard"
             : "/tea-factory/dashboard";
 
         return NextResponse.redirect(url);
@@ -71,7 +71,7 @@ export const updateSession = async (request: NextRequest) => {
         userType === "tea_supplier" &&
         request.nextUrl.pathname === "/tea-factory/dashboard"
       ) {
-        url.pathname = "/my_dashboard";
+        url.pathname = "/tea-supplier/dashboard";
 
         return NextResponse.redirect(url);
       }
@@ -79,9 +79,34 @@ export const updateSession = async (request: NextRequest) => {
       // Ensure `/my_dashboard` redirects to `/dashboard` if user is not `tea_supplier`
       if (
         userType !== "tea_supplier" &&
-        request.nextUrl.pathname === "/my_dashboard"
+        request.nextUrl.pathname === "/tea-supplier/dashboard"
       ) {
         url.pathname = "/tea-factory/dashboard";
+
+        return NextResponse.redirect(url);
+      }
+
+      // Redirect based on user type for other paths
+      if (
+        userType === "tea_supplier" &&
+        request.nextUrl.pathname.startsWith("/tea-factory/")
+      ) {
+        url.pathname = request.nextUrl.pathname.replace(
+          "/tea-factory/",
+          "/tea-supplier/",
+        );
+
+        return NextResponse.redirect(url);
+      }
+
+      if (
+        userType === "tea_factory" &&
+        request.nextUrl.pathname.startsWith("/tea-supplier/")
+      ) {
+        url.pathname = request.nextUrl.pathname.replace(
+          "/tea-supplier/",
+          "/tea-factory/",
+        );
 
         return NextResponse.redirect(url);
       }
