@@ -167,18 +167,16 @@ export default function TeaFactories() {
   ));
 
   return (
-    <div
-      className={`w-full h-full py-20 ${theme === "dark" ? "text-white " : "text-black "}`}
-    >
+    <div className={`w-full h-full py-20 dark:text-white text-[#071a07]`}>
       <h2 className="max-w-7xl pl-4 mx-auto text-4xl md:text-6xl font-extrabold mb-10 text-center">
         Select Your Tea Factory 🫡
       </h2>
 
-      <div className="max-w-2xl mx-auto mb-10 z-50">
+      <div className="max-w-2xl mx-auto mb-10 ">
         <h3 className="text-xl font-semibold mb-4">Select Town(s):</h3>
         <Select
           isMulti
-          className="text-black z-50"
+          className="text-black z-40"
           options={townOptions}
           placeholder="Select one or more towns"
           styles={{
