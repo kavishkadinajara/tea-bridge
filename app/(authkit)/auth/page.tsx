@@ -280,7 +280,7 @@ export default function AuthPage() {
       const userType = data?.user?.user_metadata?.userType;
 
       if (userType === "tea_supplier") {
-        router.push(`/my_dashboard`);
+        router.push(`/tea-supplier/dashboard`);
       } else {
         router.push(`/tea-factory/dashboard`);
       }
