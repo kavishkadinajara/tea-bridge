@@ -13,6 +13,7 @@ import {
 } from "@tabler/icons-react";
 import { AnimatePresence, motion } from "framer-motion";
 import Image, { ImageProps } from "next/image";
+import { StaticImport } from "next/dist/shared/lib/get-img-props";
 
 import { cn } from "@/lib/utils/cn";
 import { useOutsideClick } from "@/hooks/use-outside-click";
@@ -23,6 +24,10 @@ interface CarouselProps {
 }
 
 type Card = {
+  profile_photo: string;
+  description: string;
+  address: string;
+  telephone: string;
   src: string;
   factory_name: string;
   town: string;
@@ -244,7 +249,23 @@ export const Card = ({
               >
                 Price per kilo: {card.tea_leaf_price}
               </motion.p>
+              <motion.p className="text-lg md:text-xl font-medium text-neutral-700 mt-4 dark:text-white">
+                Telephone: {card.telephone}
+              </motion.p>
+              <motion.p className="text-lg md:text-xl font-medium text-neutral-700 mt-4 dark:text-white">
+                Address: {card.address}
+              </motion.p>
+              <motion.p className="text-lg md:text-xl font-medium text-neutral-700 mt-4 dark:text-white">
+                Description: {card.description}
+              </motion.p>
               <div className="py-10">{card.content}</div>
+              <BlurImage
+                alt={card.factory_name}
+                className="rounded-3xl"
+                height={300}
+                src={card.profile_photo}
+                width={500}
+              />
             </motion.div>
           </div>
         )}

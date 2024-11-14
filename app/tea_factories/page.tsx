@@ -158,13 +158,13 @@ export default function TeaFactories() {
         <div className="relative">
           <Image
             alt="Loading logo"
-            className="animate-pulse"
+            className="animate-pulse delay-500"
             height={150}
             src="/logo.png"
             width={150}
           />
           {/* Subtle Glow Effect */}
-          <div className="absolute inset-0 animate-pulse bg-gradient-to-r from-green-400 to-green-600 blur-xl opacity-50 rounded-full" />
+          <div className="absolute inset-0  animate-pulse delay-500 bg-gradient-to-r from-green-400 to-green-600 blur-xl opacity-50 rounded-full" />
         </div>
 
         {/* Loading Text */}
@@ -233,7 +233,7 @@ export default function TeaFactories() {
       </div>
 
       {selectedTowns.length > 0 && factories.length > 0 && (
-        <div className="max-w-7xl mx-auto">
+        <div className="max-w-7xl mx-auto mt-12">
           <h3 className="text-xl font-bold text-center mb-4">
             Tea Factories in Selected Towns:
           </h3>
