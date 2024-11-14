@@ -23,6 +23,7 @@ interface CarouselProps {
 }
 
 type Card = {
+  services: any;
   profile_photo: string;
   description: string;
   address: string;
@@ -273,13 +274,33 @@ export const Card = ({
                   </span>{" "}
                   {card.address}
                 </motion.p>
-                <motion.p className="flex items-start text-lg md:text-xl font-medium text-neutral-700 dark:text-neutral-300">
-                  📝{" "}
-                  <span className="ml-2 text-neutral-800 dark:text-neutral-100">
-                    Description:
+                <motion.p className="text-lg md:text-xl font-medium text-neutral-700 dark:text-neutral-300">
+                  <span className="text-neutral-800 dark:text-neutral-100 font-semibold">
+                    About us:
                   </span>{" "}
                   {card.description}
                 </motion.p>
+              </div>
+
+              {/* Services Section */}
+              <div className="mt-10">
+                <h3 className="text-2xl font-bold text-green-600 dark:text-green-400">
+                  🌟 Our Services
+                </h3>
+                <ul className="mt-4 space-y-2 text-lg md:text-xl text-neutral-700 dark:text-neutral-300 list-disc list-inside">
+                  {card.services?.map((service: string | number | bigint | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | Promise<React.AwaitedReactNode> | null | undefined, index: React.Key | null | undefined) => (
+                    <li key={index} className="flex items-center">
+                      <span className="mr-2 text-green-600 dark:text-green-400">
+                        ✔️
+                      </span>
+                      {service}
+                    </li>
+                  )) || (
+                    <p className="text-neutral-500 dark:text-neutral-400">
+                      No services listed yet.
+                    </p>
+                  )}
+                </ul>
               </div>
 
               {/* Image Viewer */}

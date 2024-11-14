@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-console */
 "use client";
 
@@ -19,6 +20,10 @@ export default function TeaFactories() {
   >([]);
   const [factories, setFactories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [profileData, setProfileData] = useState<any>(null);
+  const [originalProfileData, setOriginalProfileData] = useState<any>(null);
+  const [imagePreview, setImagePreview] = useState<string>("");
+  const [services, setServices] = useState<string[]>([]);
 
   // Fetch user data and initialize
   useEffect(() => {
@@ -50,6 +55,25 @@ export default function TeaFactories() {
       })
       .catch((error) => console.error("Error fetching towns:", error));
   }, []);
+
+  // Fetch factories based on selected towns
+  useEffect(() => {
+    if (selectedTowns.length > 0) {
+      const fetchFactoriesByTown = async () => {
+        const supabase = createClient();
+        const { data: factories } = await supabase
+          .from("profiles_factories")
+          .select("*")
+          .in("town", selectedTowns);
+
+        setFactories(filterFactories(factories || []));
+      };
+
+      fetchFactoriesByTown();
+    } else {
+      fetchRandomFactories();
+    }
+  }, [selectedTowns]);
 
   // Fetch user's town
   const fetchUserTown = async (userId: string) => {
@@ -110,22 +134,47 @@ export default function TeaFactories() {
 
   // Fetch factories based on selected towns
   useEffect(() => {
-    if (selectedTowns.length > 0) {
-      const fetchFactoriesByTown = async () => {
-        const supabase = createClient();
-        const { data: factories } = await supabase
-          .from("profiles_factories")
-          .select("*")
-          .in("town", selectedTowns);
+    const fetchProfile = async () => {
+      const supabase = createClient();
 
-        setFactories(filterFactories(factories || []));
-      };
+      try {
+        const { data: sessionData } = await supabase.auth.getUser();
+        const response = await fetch("/api/v2/factory-data");
+        const data = await response.json();
 
-      fetchFactoriesByTown();
-    } else {
-      fetchRandomFactories();
-    }
-  }, [selectedTowns]);
+        if (response.ok) {
+          const fetchedProfileData = {
+            factoryName: data.profileData.factory_name || "",
+            mobileNum: data.profileData.telephone || "",
+            address: data.profileData.address || "",
+            town: data.profileData.town || "",
+            email: sessionData?.user?.email || "",
+            description: data.profileData.description || "",
+            profilePhoto: data.profileData.profile_photo || "",
+          };
+
+          setProfileData(fetchedProfileData);
+          setOriginalProfileData(fetchedProfileData);
+          setImagePreview(fetchedProfileData.profilePhoto || "");
+
+          const fetchedServices =
+            data.profileData.factory_services?.map(
+              (service: { service: string }) => service.service,
+            ) || [];
+
+          setServices(fetchedServices);
+        } else {
+          console.error(data.error);
+        }
+      } catch (error) {
+        console.error("Error fetching profile:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, []);
 
   const handleTownChange = (keys: any) => {
     if (Array.isArray(keys)) {
@@ -146,6 +195,9 @@ export default function TeaFactories() {
           tea_leaf_price: card.tea_leaf_price,
           content: card.content,
           src: card.profile_photo || "/default-factory.png",
+          services: card.factory_services?.map(
+            (service: { service: string }) => service.service,
+            ),
         }}
         index={index}
       />

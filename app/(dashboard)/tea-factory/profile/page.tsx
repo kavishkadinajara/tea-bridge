@@ -195,17 +195,17 @@ export default function ProfilePage() {
 
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center h-full">
+      <div className="flex items-center justify-center h-full">
         <div className="relative w-32 h-32">
-          <div className="absolute inset-0 animate-pulse delay-500 bg-gradient-to-r from-green-400 to-green-600 blur-xl opacity-50 rounded-full" />
+          <div className="absolute inset-0 animate-pulse delay-500 bg-gradient-to-r from-green-400 to-green-600 dark:from-green-600 dark:to-green-800 blur-xl opacity-50 rounded-full" />
         </div>
         <p className="mt-6 text-lg font-medium text-gray-700 dark:text-gray-200">
           Loading, please wait...
         </p>
         <div className="flex mt-4 space-x-2">
-          <span className="w-3 h-3 bg-green-500 rounded-full animate-bounce" />
-          <span className="w-3 h-3 bg-green-600 rounded-full animate-bounce delay-150" />
-          <span className="w-3 h-3 bg-green-700 rounded-full animate-bounce delay-300" />
+          <span className="w-3 h-3 bg-green-500 dark:bg-green-700 rounded-full animate-bounce" />
+          <span className="w-3 h-3 bg-green-600 dark:bg-green-800 rounded-full animate-bounce delay-150" />
+          <span className="w-3 h-3 bg-green-700 dark:bg-green-900 rounded-full animate-bounce delay-300" />
         </div>
       </div>
     );
@@ -250,9 +250,9 @@ export default function ProfilePage() {
             <input
               className={`w-full p-3 rounded-lg border ${
                 isEditing
-                  ? "border-lime-500 bg-white"
-                  : "border-gray-300 bg-gray-100"
-              } text-gray-800 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200`}
+                  ? "border-lime-500 bg-white dark:bg-gray-900"
+                  : "border-gray-300 bg-gray-100 dark:bg-gray-800"
+              } text-gray-800 dark:text-gray-200`}
               disabled={!isEditing}
               type="text"
               value={profileData.factoryName}
@@ -268,9 +268,9 @@ export default function ProfilePage() {
             <input
               className={`w-full p-3 rounded-lg border ${
                 isEditing
-                  ? "border-lime-500 bg-white"
-                  : "border-gray-300 bg-gray-100"
-              } text-gray-800 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200`}
+                  ? "border-lime-500 bg-white dark:bg-gray-900"
+                  : "border-gray-300 bg-gray-100 dark:bg-gray-800"
+              } text-gray-800 dark:text-gray-200`}
               disabled={!isEditing}
               type="text"
               value={profileData.mobileNum}
@@ -284,9 +284,9 @@ export default function ProfilePage() {
             <input
               className={`w-full p-3 rounded-lg border ${
                 isEditing
-                  ? "border-lime-500 bg-white"
-                  : "border-gray-300 bg-gray-100"
-              } text-gray-800 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200`}
+                  ? "border-lime-500 bg-white dark:bg-gray-900"
+                  : "border-gray-300 bg-gray-100 dark:bg-gray-800"
+              } text-gray-800 dark:text-gray-200`}
               disabled={!isEditing}
               type="text"
               value={profileData.address}
@@ -299,7 +299,7 @@ export default function ProfilePage() {
             <label className="text-gray-700 dark:text-gray-200">Town</label>
             {isEditing ? (
               <select
-                className="w-full p-3 rounded-lg border border-lime-500 bg-white text-gray-800 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200"
+                className="w-full p-3 rounded-lg border border-lime-500 bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200"
                 value={profileData.town}
                 onChange={(e) => handleInputChange(e, "town")}
               >
@@ -316,7 +316,7 @@ export default function ProfilePage() {
             ) : (
               <input
                 disabled
-                className="w-full p-3 rounded-lg border border-gray-300 bg-gray-100 text-gray-800 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200"
+                className="w-full p-3 rounded-lg border border-gray-300 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200"
                 value={profileData.town}
               />
             )}
@@ -327,7 +327,7 @@ export default function ProfilePage() {
             <label className="text-gray-700 dark:text-gray-200">Email</label>
             <input
               disabled
-              className="w-full p-3 rounded-lg border border-gray-300 bg-gray-100 text-gray-800 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200"
+              className="w-full p-3 rounded-lg border border-gray-300 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200"
               type="email"
               value={profileData.email}
             />
@@ -341,9 +341,9 @@ export default function ProfilePage() {
             <textarea
               className={`w-full p-3 rounded-lg border ${
                 isEditing
-                  ? "border-lime-500 bg-white"
-                  : "border-gray-300 bg-gray-100"
-              } text-gray-800 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200`}
+                  ? "border-lime-500 bg-white dark:bg-gray-900"
+                  : "border-gray-300 bg-gray-100 dark:bg-gray-800"
+              } text-gray-800 dark:text-gray-200`}
               disabled={!isEditing}
               maxLength={1000} // Ensures input is restricted at the browser level
               value={profileData.description}
@@ -378,7 +378,7 @@ export default function ProfilePage() {
                   <div key={index} className="flex items-center mb-2">
                     <input
                       readOnly
-                      className="w-full p-2 border rounded-md bg-gray-100 text-gray-800 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200"
+                      className="w-full p-2 border rounded-md bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200"
                       type="text"
                       value={service}
                     />
@@ -394,7 +394,7 @@ export default function ProfilePage() {
                 {/* Add New Service */}
                 <div className="flex items-center">
                   <input
-                    className="w-full p-2 border rounded-md text-gray-800 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200"
+                    className="w-full p-2 border rounded-md text-gray-800 dark:bg-gray-800 dark:text-gray-200"
                     placeholder="Add a new service"
                     type="text"
                     value={newService}
