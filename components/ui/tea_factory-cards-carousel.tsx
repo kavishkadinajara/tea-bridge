@@ -13,7 +13,6 @@ import {
 } from "@tabler/icons-react";
 import { AnimatePresence, motion } from "framer-motion";
 import Image, { ImageProps } from "next/image";
-import { StaticImport } from "next/dist/shared/lib/get-img-props";
 
 import { cn } from "@/lib/utils/cn";
 import { useOutsideClick } from "@/hooks/use-outside-click";
@@ -217,55 +216,103 @@ export const Card = ({
             />
             <motion.div
               ref={containerRef}
-              animate={{ opacity: 1 }}
-              className="max-w-5xl mx-auto bg-white dark:bg-neutral-900 h-fit  z-[60] my-10 p-4 md:p-10 rounded-3xl font-sans relative"
-              exit={{ opacity: 0 }}
-              initial={{ opacity: 0 }}
-              layoutId={layout ? `card-${card.factory_name}` : undefined}
+              animate={{ opacity: 1, scale: 1 }}
+              className="max-w-5xl mx-auto bg-gradient-to-br from-white to-gray-50 dark:from-neutral-800 dark:to-neutral-900 shadow-2xl border border-gray-200 dark:border-neutral-700 h-fit z-[60] my-10 p-8 md:p-12 rounded-3xl font-sans relative"
+              exit={{ opacity: 0, scale: 0.9 }}
+              initial={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.5, ease: "easeInOut" }}
             >
+              {/* Close Button */}
               <button
-                className="sticky top-4 h-8 w-8 right-0 ml-auto bg-black dark:bg-white rounded-full flex items-center justify-center"
+                className="absolute top-6 right-6 h-12 w-12 bg-black dark:bg-white rounded-full flex items-center justify-center shadow-xl hover:scale-110 hover:shadow-2xl transition-all"
                 onClick={handleClose}
               >
-                <IconX className="h-6 w-6 text-neutral-100 dark:text-neutral-900" />
+                <IconX className="h-7 w-7 text-neutral-100 dark:text-neutral-900" />
               </button>
-              <motion.p
-                className="text-base font-medium text-black dark:text-white"
-                layoutId={layout ? `category-${card.factory_name}` : undefined}
-              >
-                {card.town}
-              </motion.p>
-              <motion.p
-                className="text-2xl md:text-5xl font-semibold text-neutral-700 mt-4 dark:text-white"
+
+              {/* Factory Info */}
+              <motion.h2
+                className="text-4xl md:text-5xl font-extrabold text-neutral-800 dark:text-white text-center tracking-tight"
                 layoutId={
                   layout ? `factory_name-${card.factory_name}` : undefined
                 }
               >
                 {card.factory_name}
+              </motion.h2>
+              <motion.p
+                className="text-sm font-semibold text-green-600 dark:text-green-400 uppercase text-center mt-2 tracking-widest"
+                layoutId={layout ? `category-${card.factory_name}` : undefined}
+              >
+                {card.town}
               </motion.p>
               <motion.p
-                className="text-xl md:text-3xl font-semibold text-neutral-700 mt-4 dark:text-white"
+                className="text-xl md:text-2xl font-medium text-neutral-700 dark:text-neutral-300 mt-6 leading-relaxed text-center"
                 layoutId={layout ? `price-${card.factory_name}` : undefined}
               >
-                Price per kilo: {card.tea_leaf_price}
+                🌿 We proudly offer{" "}
+                <span className="text-green-600 dark:text-green-400 font-bold text-4xl">
+                  Rs. {card.tea_leaf_price}
+                </span>{" "}
+                per kilogram for your premium tea leaves! Your hard work
+                transforms into excellence, one sip at a time ☕.
               </motion.p>
-              <motion.p className="text-lg md:text-xl font-medium text-neutral-700 mt-4 dark:text-white">
-                Telephone: {card.telephone}
-              </motion.p>
-              <motion.p className="text-lg md:text-xl font-medium text-neutral-700 mt-4 dark:text-white">
-                Address: {card.address}
-              </motion.p>
-              <motion.p className="text-lg md:text-xl font-medium text-neutral-700 mt-4 dark:text-white">
-                Description: {card.description}
-              </motion.p>
-              <div className="py-10">{card.content}</div>
-              <BlurImage
-                alt={card.factory_name}
-                className="rounded-3xl fade-edges"
-                height={300}
-                src={card.profile_photo}
-                width={500}
-              />
+
+              {/* Contact Info */}
+              <div className="mt-8 space-y-6">
+                <motion.p className="flex items-center text-lg md:text-xl font-medium text-neutral-700 dark:text-neutral-300">
+                  📞{" "}
+                  <span className="ml-2 text-neutral-800 dark:text-neutral-100">
+                    Telephone:
+                  </span>{" "}
+                  {card.telephone}
+                </motion.p>
+                <motion.p className="flex items-center text-lg md:text-xl font-medium text-neutral-700 dark:text-neutral-300">
+                  📍{" "}
+                  <span className="ml-2 text-neutral-800 dark:text-neutral-100">
+                    Address:
+                  </span>{" "}
+                  {card.address}
+                </motion.p>
+                <motion.p className="flex items-start text-lg md:text-xl font-medium text-neutral-700 dark:text-neutral-300">
+                  📝{" "}
+                  <span className="ml-2 text-neutral-800 dark:text-neutral-100">
+                    Description:
+                  </span>{" "}
+                  {card.description}
+                </motion.p>
+              </div>
+
+              {/* Image Viewer */}
+              <motion.div className="mt-12 relative group">
+                <BlurImage
+                  alt={card.factory_name}
+                  className="rounded-3xl transition-transform group-hover:scale-105 shadow-xl fade-edges w-full h-[350px] md:h-[600px] object-cover"
+                  height={300}
+                  src={card.profile_photo || "/default-factory.png"}
+                  width={500}
+                />
+                {/* Gradient Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              </motion.div>
+
+              {/* Additional Content */}
+              <div className="py-12">
+                <motion.div className="text-lg md:text-xl font-medium text-neutral-700 dark:text-neutral-300 leading-relaxed">
+                  {card.content ||
+                    "Discover the best tea leaves and enjoy quality at its finest!"}
+                </motion.div>
+              </div>
+
+              {/* CTA Button */}
+              <div className="text-center">
+                <motion.button
+                  className="mt-8 px-6 py-3 rounded-full bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 text-white text-lg font-bold shadow-lg hover:shadow-xl transition-all"
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  Contact Us for More Details
+                </motion.button>
+              </div>
             </motion.div>
           </div>
         )}

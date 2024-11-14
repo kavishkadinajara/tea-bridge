@@ -3,11 +3,8 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
-// import { User } from "next-auth";
 
-import { createClient } from "@/lib/utils/supabase/client"; // Adjust path
-
-// type SessionState = { user: User } | null;
+import { createClient } from "@/lib/utils/supabase/client"; // Adjust path if needed
 
 export default function ProfilePage() {
   const [towns, setTowns] = useState<string[]>([]);
@@ -30,94 +27,81 @@ export default function ProfilePage() {
     description: "",
     profilePhoto: "",
   });
-
-  const [file, setFile] = useState<File | null>(null); // To handle image file
+  const [file, setFile] = useState<File | null>(null);
+  const [services, setServices] = useState<string[]>([]);
+  const [newService, setNewService] = useState<string>("");
   const [imagePreview, setImagePreview] = useState<string>("");
   const [userId, setUserId] = useState<string>("");
-
   const supabase = createClient();
 
   useEffect(() => {
-    const supabase = createClient();
-    const fetchProfile = async () => {
+    const fetchSessionAndProfile = async () => {
       try {
-        // Fetch profile data
-        const { data: profileData, error: profileError } = await supabase
-          .from("profiles_factories")
-          .select(
-            "factory_name, telephone, address, town, description, profile_photo",
-          )
-          .eq("id", userId)
-          .single();
+        const { data: sessionData } = await supabase.auth.getUser();
 
-        if (profileError) throw profileError;
+        if (sessionData.user) {
+          setUserId(sessionData.user.id);
 
-        // Fetch user email from Supabase Auth
-        const {
-          data: { user },
-          error: authError,
-        } = await supabase.auth.getUser();
+          // Fetch profile data after setting userId
+          const { data: profileData, error: profileError } = await supabase
+            .from("profiles_factories")
+            .select(
+              "factory_name, telephone, address, town, description, profile_photo",
+            )
+            .eq("id", sessionData.user.id)
+            .single();
 
-        if (authError) throw authError;
+          if (profileError) throw profileError;
 
-        const fetchedProfileData = {
-          factoryName: profileData?.factory_name || "",
-          mobileNum: profileData?.telephone || "",
-          address: profileData?.address || "",
-          town: profileData?.town || "",
-          email: user?.email || "",
-          description: profileData?.description || "",
-          profilePhoto: profileData?.profile_photo || "",
-        };
+          const fetchedProfileData = {
+            factoryName: profileData?.factory_name || "",
+            mobileNum: profileData?.telephone || "",
+            address: profileData?.address || "",
+            town: profileData?.town || "",
+            email: sessionData.user.email || "",
+            description: profileData?.description || "",
+            profilePhoto: profileData?.profile_photo || "",
+          };
 
-        // Set both profileData and originalProfileData to the fetched data
-        setProfileData(fetchedProfileData);
-        setOriginalProfileData(fetchedProfileData);
-        setImagePreview(fetchedProfileData.profilePhoto || "");
+          setProfileData(fetchedProfileData);
+          setOriginalProfileData(fetchedProfileData);
+          setImagePreview(fetchedProfileData.profilePhoto || "");
+
+          // Fetch services
+          const { data: servicesData, error: servicesError } = await supabase
+            .from("factory_services")
+            .select("service")
+            .eq("factory_id", sessionData.user.id);
+
+          if (servicesError) throw servicesError;
+          setServices(
+            servicesData.map((item: { service: string }) => item.service),
+          );
+        }
       } catch (error) {
-        console.error("Error fetching profile or email:", error);
+        console.error("Error fetching profile or services:", error);
       }
     };
 
-    const fetchSession = async () => {
-      const supabase = createClient();
-      const { data } = await supabase.auth.getUser();
+    fetchSessionAndProfile();
 
-      if (data.user && data.user.id) {
-        setUserId(data.user.id);
-      }
-    };
-
-    fetchSession();
-    fetchProfile();
-
-    // Fetch town options dynamically
     fetch("/api/v2/town")
       .then((res) => res.json())
-      .then((data) => {
-        setTowns(data.towns || []);
-      })
+      .then((data) => setTowns(data.towns || []))
       .catch((error) => console.error("Error fetching towns:", error));
-  }, [userId]);
+  }, [supabase]);
 
   const handleInputChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
     >,
     field: keyof typeof profileData,
-  ) => {
-    setProfileData({
-      ...profileData,
-      [field]: e.target.value,
-    });
-  };
+  ) => setProfileData({ ...profileData, [field]: e.target.value });
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      const selectedFile = e.target.files[0];
-
-      setFile(selectedFile);
-      setImagePreview(URL.createObjectURL(selectedFile));
+      setFile(e.target.files[0]);
+      setImagePreview(URL.createObjectURL(e.target.files[0]));
     }
   };
 
@@ -140,15 +124,11 @@ export default function ProfilePage() {
   };
 
   const saveProfile = async () => {
-    // Upload image and get the URL
     const imgPath = await uploadImage();
-
-    // Update profile photo in profile data
     const updatedProfilePhoto = imgPath
       ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/factory-images/${imgPath}`
       : profileData.profilePhoto;
 
-    // Update the profile data in the database
     const { error } = await supabase
       .from("profiles_factories")
       .update({
@@ -165,22 +145,62 @@ export default function ProfilePage() {
       console.error("Error updating profile:", error.message);
     } else {
       setOriginalProfileData(profileData);
-      setIsEditing(false); // Exit editing mode after saving
+      setIsEditing(false);
     }
   };
 
   const toggleEdit = () => {
-    if (isEditing) {
-      saveProfile();
-    } else {
-      setIsEditing(true);
-    }
+    if (isEditing) saveProfile();
+    else setIsEditing(true);
   };
 
   const handleCancel = () => {
     setProfileData(originalProfileData);
     setImagePreview(originalProfileData.profilePhoto);
     setIsEditing(false);
+  };
+
+  const handleAddService = async () => {
+    if (newService.trim()) {
+      try {
+        const { error } = await supabase
+          .from("factory_services")
+          .insert({ factory_id: userId, service: newService });
+
+        if (error) throw error;
+
+        setServices([...services, newService]);
+        setNewService("");
+      } catch (error) {
+        if (error instanceof Error) {
+          console.error("Error adding service:", error.message);
+        } else {
+          console.error("Error adding service:", error);
+        }
+      }
+    }
+  };
+
+  const handleRemoveService = async (index: number) => {
+    const serviceToRemove = services[index];
+
+    try {
+      const { error } = await supabase
+        .from("factory_services")
+        .delete()
+        .eq("factory_id", userId)
+        .eq("service", serviceToRemove);
+
+      if (error) throw error;
+
+      setServices(services.filter((_, i) => i !== index));
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error("Error removing service:", error.message);
+      } else {
+        console.error("Error removing service:", error);
+      }
+    }
   };
 
   return (
@@ -317,9 +337,78 @@ export default function ProfilePage() {
                   : "border-gray-300 bg-gray-100"
               } text-gray-800 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200`}
               disabled={!isEditing}
+              maxLength={1000} // Ensures input is restricted at the browser level
               value={profileData.description}
-              onChange={(e) => handleInputChange(e, "description")}
+              onChange={(e) => {
+                const value = e.target.value;
+
+                if (value.length <= 1000) {
+                  handleInputChange(e, "description");
+                }
+              }}
             />
+            <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+              {profileData.description.length}/1000 characters
+            </div>
+            {profileData.description.length > 1000 && (
+              <div className="text-sm text-red-500 dark:text-red-400 mt-1">
+                ⚠️ Description cannot exceed 1000 characters.
+              </div>
+            )}
+          </div>
+
+          {/* Services Section */}
+          <div className="mt-8">
+            <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
+              Factory Services
+            </h3>
+
+            {isEditing ? (
+              <div>
+                {/* List Existing Services */}
+                {services.map((service, index) => (
+                  <div key={index} className="flex items-center mb-2">
+                    <input
+                      readOnly
+                      className="w-full p-2 border rounded-md bg-gray-100 text-gray-800 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200"
+                      type="text"
+                      value={service}
+                    />
+                    <button
+                      className="ml-2 text-red-500 hover:text-red-700"
+                      onClick={() => handleRemoveService(index)}
+                    >
+                      ✖
+                    </button>
+                  </div>
+                ))}
+
+                {/* Add New Service */}
+                <div className="flex items-center">
+                  <input
+                    className="w-full p-2 border rounded-md text-gray-800 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200"
+                    placeholder="Add a new service"
+                    type="text"
+                    value={newService}
+                    onChange={(e) => setNewService(e.target.value)}
+                  />
+                  <button
+                    className="ml-2 bg-lime-500 text-white px-4 py-2 rounded-md hover:bg-lime-600"
+                    onClick={handleAddService}
+                  >
+                    Add
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <ul className="list-disc pl-5">
+                {services.map((service, index) => (
+                  <li key={index} className="text-gray-800 dark:text-gray-200">
+                    {service}
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
         </div>
 
@@ -352,5 +441,4 @@ export default function ProfilePage() {
       </div>
     </div>
   );
-};
-
+}
