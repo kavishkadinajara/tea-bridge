@@ -42,41 +42,39 @@ export default function ProfilePage() {
         if (sessionData.user) {
           setUserId(sessionData.user.id);
 
-          // Fetch profile data after setting userId
-          const { data: profileData, error: profileError } = await supabase
+          // Fetch profile data with joined services
+          const { data: joinedData, error } = await supabase
             .from("profiles_factories")
             .select(
-              "factory_name, telephone, address, town, description, profile_photo",
+              `factory_name, telephone, address, town, description, profile_photo, 
+              factory_services(service)`,
             )
             .eq("id", sessionData.user.id)
             .single();
 
-          if (profileError) throw profileError;
+          if (error) throw error;
 
           const fetchedProfileData = {
-            factoryName: profileData?.factory_name || "",
-            mobileNum: profileData?.telephone || "",
-            address: profileData?.address || "",
-            town: profileData?.town || "",
+            factoryName: joinedData?.factory_name || "",
+            mobileNum: joinedData?.telephone || "",
+            address: joinedData?.address || "",
+            town: joinedData?.town || "",
             email: sessionData.user.email || "",
-            description: profileData?.description || "",
-            profilePhoto: profileData?.profile_photo || "",
+            description: joinedData?.description || "",
+            profilePhoto: joinedData?.profile_photo || "",
           };
 
           setProfileData(fetchedProfileData);
           setOriginalProfileData(fetchedProfileData);
           setImagePreview(fetchedProfileData.profilePhoto || "");
 
-          // Fetch services
-          const { data: servicesData, error: servicesError } = await supabase
-            .from("factory_services")
-            .select("service")
-            .eq("factory_id", sessionData.user.id);
+          // Extract services from joined data
+          const fetchedServices =
+            joinedData?.factory_services?.map(
+              (service: { service: string }) => service.service,
+            ) || [];
 
-          if (servicesError) throw servicesError;
-          setServices(
-            servicesData.map((item: { service: string }) => item.service),
-          );
+          setServices(fetchedServices);
         }
       } catch (error) {
         console.error("Error fetching profile or services:", error);
