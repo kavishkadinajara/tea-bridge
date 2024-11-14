@@ -9,6 +9,7 @@ import { createClient } from "@/lib/utils/supabase/client"; // Adjust path if ne
 export default function ProfilePage() {
   const [towns, setTowns] = useState<string[]>([]);
   const [isEditing, setIsEditing] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [originalProfileData, setOriginalProfileData] = useState({
     factoryName: "",
     mobileNum: "",
@@ -35,59 +36,50 @@ export default function ProfilePage() {
   const supabase = createClient();
 
   useEffect(() => {
-    const fetchSessionAndProfile = async () => {
+    const fetchProfile = async () => {
       try {
         const { data: sessionData } = await supabase.auth.getUser();
+        const response = await fetch("/api/v2/factory-data");
+        const data = await response.json();
 
-        if (sessionData.user) {
-          setUserId(sessionData.user.id);
-
-          // Fetch profile data with joined services
-          const { data: joinedData, error } = await supabase
-            .from("profiles_factories")
-            .select(
-              `factory_name, telephone, address, town, description, profile_photo, 
-              factory_services(service)`,
-            )
-            .eq("id", sessionData.user.id)
-            .single();
-
-          if (error) throw error;
-
+        if (response.ok) {
           const fetchedProfileData = {
-            factoryName: joinedData?.factory_name || "",
-            mobileNum: joinedData?.telephone || "",
-            address: joinedData?.address || "",
-            town: joinedData?.town || "",
-            email: sessionData.user.email || "",
-            description: joinedData?.description || "",
-            profilePhoto: joinedData?.profile_photo || "",
+            factoryName: data.profileData.factory_name || "",
+            mobileNum: data.profileData.telephone || "",
+            address: data.profileData.address || "",
+            town: data.profileData.town || "",
+            email: sessionData?.user?.email || "",
+            description: data.profileData.description || "",
+            profilePhoto: data.profileData.profile_photo || "",
           };
 
           setProfileData(fetchedProfileData);
           setOriginalProfileData(fetchedProfileData);
           setImagePreview(fetchedProfileData.profilePhoto || "");
 
-          // Extract services from joined data
           const fetchedServices =
-            joinedData?.factory_services?.map(
+            data.profileData.factory_services?.map(
               (service: { service: string }) => service.service,
             ) || [];
 
           setServices(fetchedServices);
+        } else {
+          console.error(data.error);
         }
       } catch (error) {
-        console.error("Error fetching profile or services:", error);
+        console.error("Error fetching profile:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
-    fetchSessionAndProfile();
+    fetchProfile();
 
     fetch("/api/v2/town")
       .then((res) => res.json())
       .then((data) => setTowns(data.towns || []))
       .catch((error) => console.error("Error fetching towns:", error));
-  }, [supabase]);
+  }, []);
 
   const handleInputChange = (
     e: React.ChangeEvent<
@@ -201,9 +193,27 @@ export default function ProfilePage() {
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full">
+        <div className="relative w-32 h-32">
+          <div className="absolute inset-0 animate-pulse delay-500 bg-gradient-to-r from-green-400 to-green-600 blur-xl opacity-50 rounded-full" />
+        </div>
+        <p className="mt-6 text-lg font-medium text-gray-700 dark:text-gray-200">
+          Loading, please wait...
+        </p>
+        <div className="flex mt-4 space-x-2">
+          <span className="w-3 h-3 bg-green-500 rounded-full animate-bounce" />
+          <span className="w-3 h-3 bg-green-600 rounded-full animate-bounce delay-150" />
+          <span className="w-3 h-3 bg-green-700 rounded-full animate-bounce delay-300" />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full h-full lg:p-8">
-      <div className="container mx-auto  rounded-lg p-8">
+      <div className="container mx-auto rounded-lg p-8">
         <h2 className="text-3xl font-bold text-center text-gray-800 dark:text-gray-100 mb-8">
           {profileData.factoryName} Profile
         </h2>

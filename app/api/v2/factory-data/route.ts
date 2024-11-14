@@ -1,14 +1,12 @@
-import { NextApiRequest, NextApiResponse } from "next";
-
-import { createClient } from "@/lib/utils/supabase/server";
+/* eslint-disable no-console */
 import { NextResponse } from "next/server";
 
-const handler = async (req: NextApiRequest, res: NextApiResponse) => {
-  const supabase = createClient({ req, res });
+import { createClient } from "@/lib/utils/supabase/server";
 
-  if (req.method !== "GET") {
-    return res.status(405).json({ error: "Method Not Allowed" });
-  }
+export async function GET() {
+  const supabase = createClient({
+    /* your configuration here */
+  });
 
   try {
     const {
@@ -17,36 +15,38 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     } = await supabase.auth.getUser();
 
     if (authError || !user) {
-      return res.status(401).json({ error: "Unauthorized" });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { data, error } = await supabase
+    const { data: profileData, error: profileError } = await supabase
       .from("profiles_factories")
       .select(
-        `factory_name, telephone, address, town, description, profile_photo, 
+        `factory_name, telephone, address, town, description, profile_photo,
         factory_services(service)`,
       )
       .eq("id", user.id)
       .single();
 
-    if (error) {
-      return res.status(500).json({ error: "Failed to fetch profile data" });
+    if (profileError) {
+      return NextResponse.json(
+        { error: "Failed to fetch profile data" },
+        { status: 500 },
+      );
+    }
+    if (profileError) {
+      return NextResponse.json(
+        { error: "Failed to fetch profile data" },
+        { status: 500 },
+      );
     }
 
-    const towns = await supabase.from("towns").select("*");
-
-    if (towns.error) {
-      return res.status(500).json({ error: "Failed to fetch towns" });
-    }
-
-    return res.status(200).json({
-      profileData: data,
-      towns: towns.data.map((t: { name: string }) => t.name),
-    });
+    return NextResponse.json({ profileData });
   } catch (error) {
-    console.error("API Error:", error);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-};
+    console.error("Error fetching data:", error);
 
-export default handler;
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 },
+    );
+  }
+}
