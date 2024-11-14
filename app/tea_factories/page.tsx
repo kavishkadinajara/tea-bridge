@@ -10,7 +10,7 @@ import { Carousel, Card } from "@/components/ui/tea_factory-cards-carousel";
 import { createClient } from "@/lib/utils/supabase/client";
 
 export default function TeaFactories() {
-  const { theme } = useTheme();
+  useTheme();
   const [selectedTowns, setSelectedTowns] = useState<string[]>([]);
   const [userFactories, setUserFactories] = useState<any[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
