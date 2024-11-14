@@ -261,7 +261,7 @@ export const Card = ({
               <div className="py-10">{card.content}</div>
               <BlurImage
                 alt={card.factory_name}
-                className="rounded-3xl"
+                className="rounded-3xl fade-edges"
                 height={300}
                 src={card.profile_photo}
                 width={500}
