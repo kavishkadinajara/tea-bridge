@@ -151,8 +151,13 @@ export default function TeaFactories() {
             email: sessionData?.user?.email || "",
             description: data.profileData.description || "",
             profilePhoto: data.profileData.profile_photo || "",
+            services:
+              data.profileData.factory_services?.map(
+                (service: { service: string }) => service.service,
+              ) || [],
           };
 
+          console.log(fetchedProfileData);
           setProfileData(fetchedProfileData);
           setOriginalProfileData(fetchedProfileData);
           setImagePreview(fetchedProfileData.profilePhoto || "");
@@ -195,9 +200,8 @@ export default function TeaFactories() {
           tea_leaf_price: card.tea_leaf_price,
           content: card.content,
           src: card.profile_photo || "/default-factory.png",
-          services: card.factory_services?.map(
-            (service: { service: string }) => service.service,
-            ),
+          // services: card.fetchedServices,
+          services: card.services,
         }}
         index={index}
       />

@@ -23,16 +23,18 @@ interface CarouselProps {
 }
 
 type Card = {
-  services: any;
+  src: string;
+  title: string;
+  category: string;
+  content: React.ReactNode;
+  services: string[];
   profile_photo: string;
   description: string;
   address: string;
   telephone: string;
-  src: string;
   factory_name: string;
   town: string;
   tea_leaf_price: number;
-  content: React.ReactNode;
 };
 
 export const CarouselContext = createContext<{
@@ -287,15 +289,17 @@ export const Card = ({
                 <h3 className="text-2xl font-bold text-green-600 dark:text-green-400">
                   🌟 Our Services
                 </h3>
-                <ul className="mt-4 space-y-2 text-lg md:text-xl text-neutral-700 dark:text-neutral-300 list-disc list-inside">
-                  {card.services?.map((service: string | number | bigint | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | Promise<React.AwaitedReactNode> | null | undefined, index: React.Key | null | undefined) => (
-                    <li key={index} className="flex items-center">
-                      <span className="mr-2 text-green-600 dark:text-green-400">
-                        ✔️
-                      </span>
-                      {service}
-                    </li>
-                  )) || (
+                <ul className="list-disc list-inside mt-4">
+                  {Array.isArray(card.services) && card.services.length > 0 ? (
+                    card.services.map((service, idx) => (
+                      <li
+                        key={idx}
+                        className="text-neutral-700 dark:text-neutral-300"
+                      >
+                        {service}
+                      </li>
+                    ))
+                  ) : (
                     <p className="text-neutral-500 dark:text-neutral-400">
                       No services listed yet.
                     </p>
