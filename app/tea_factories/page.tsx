@@ -162,12 +162,12 @@ export default function TeaFactories() {
           setOriginalProfileData(fetchedProfileData);
           setImagePreview(fetchedProfileData.profilePhoto || "");
 
-          const fetchedServices =
-            data.profileData.factory_services?.map(
-              (service: { service: string }) => service.service,
-            ) || [];
+          // const fetchedServices =
+          //   data.profileData.factory_services?.map(
+          //     (service: { service: string }) => service.service,
+          //   ) || [];
 
-          setServices(fetchedServices);
+          // setServices(fetchedServices);
         } else {
           console.error(data.error);
         }
@@ -195,12 +195,12 @@ export default function TeaFactories() {
         key={card.id}
         card={{
           ...card,
+          id: card.id,
           factory_name: card.factory_name,
           town: card.town,
           tea_leaf_price: card.tea_leaf_price,
           content: card.content,
           src: card.profile_photo || "/default-factory.png",
-          // services: card.fetchedServices,
           services: card.services,
         }}
         index={index}

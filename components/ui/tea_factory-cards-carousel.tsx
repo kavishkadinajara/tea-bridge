@@ -1,11 +1,5 @@
+/* eslint-disable no-console */
 "use client";
-import React, {
-  useEffect,
-  useRef,
-  useState,
-  createContext,
-  useContext,
-} from "react";
 import {
   IconArrowNarrowLeft,
   IconArrowNarrowRight,
@@ -13,9 +7,21 @@ import {
 } from "@tabler/icons-react";
 import { AnimatePresence, motion } from "framer-motion";
 import Image, { ImageProps } from "next/image";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+// import toast from "react-hot-toast";
 
-import { cn } from "@/lib/utils/cn";
+import { toast } from "react-toastify";
+
+import "react-toastify/dist/ReactToastify.css";
 import { useOutsideClick } from "@/hooks/use-outside-click";
+import { cn } from "@/lib/utils/cn";
+import { createClient } from "@/lib/utils/supabase/client";
 
 interface CarouselProps {
   items: JSX.Element[];
@@ -35,6 +41,7 @@ type Card = {
   factory_name: string;
   town: string;
   tea_leaf_price: number;
+  id: string;
 };
 
 export const CarouselContext = createContext<{
@@ -176,6 +183,8 @@ export const Card = ({
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const { onCardClose, currentIndex } = useContext(CarouselContext);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
@@ -183,6 +192,21 @@ export const Card = ({
         handleClose();
       }
     }
+
+    const initializeData = async () => {
+      const supabase = createClient();
+      const { data } = await supabase.auth.getUser();
+
+      if (data.user) {
+        setUserId(data.user.id);
+      } else {
+        console.log("No user found");
+      }
+      setLoading(false);
+    };
+
+    console.log("userId" + userId);
+    initializeData();
 
     if (open) {
       document.body.style.overflow = "hidden";
@@ -205,6 +229,53 @@ export const Card = ({
     setOpen(false);
     onCardClose(index);
   };
+
+  async function supplierRequest() {
+    const supabase = createClient();
+
+    if (!userId) {
+      // Display a toast notification to the user
+      toast.error("You need to be logged in to perform this action.", {
+        position: "top-right", // Position of the toast
+        autoClose: 1500, // Automatically close after 1.5 seconds
+        hideProgressBar: true, // Hide the progress bar
+      });
+
+      // Redirect the user to the login page after a delay
+      setTimeout(() => {
+        window.location.href = "/auth";
+      }, 1500);
+
+      return;
+    } else {
+      // Fetch supplier request status from the database
+      const { data: supplierRequestStatus, error } = await supabase
+        .from("suppliers_factories")
+        .select("request_status")
+        .eq("supplier_id", userId)
+        .eq("factory_id", card.id);
+
+      if (error) {
+        // Log error for debugging purposes
+        console.error("Error fetching supplier request status:", error);
+
+        // Notify the user of an error
+        toast.error("An error occurred while checking request status.");
+
+        return;
+      }
+
+      // Log the supplier request status to the console
+      console.log(supplierRequestStatus);
+
+      // Optionally handle the fetched data
+      if (supplierRequestStatus?.length === 0) {
+        toast.info("No request status found for this supplier.");
+      } else {
+        toast.success("Request status fetched successfully.");
+      }
+    }
+  }
 
   return (
     <>
@@ -277,9 +348,9 @@ export const Card = ({
                   {card.address}
                 </motion.p>
                 <motion.p className="text-lg md:text-xl font-medium text-neutral-700 dark:text-neutral-300">
-                  <span className="text-neutral-800 dark:text-neutral-100 font-semibold">
-                    About us:
-                  </span>{" "}
+                  <h3 className="text-2xl font-bold text-green-600 dark:text-green-400">
+                    ☺️ About us
+                  </h3>{" "}
                   {card.description}
                 </motion.p>
               </div>
@@ -331,11 +402,12 @@ export const Card = ({
               {/* CTA Button */}
               <div className="text-center">
                 <motion.button
-                  className="mt-8 px-6 py-3 rounded-full bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 text-white text-lg font-bold shadow-lg hover:shadow-xl transition-all"
+                  className="w-full lg:w-1/2 px-4 py-2 border-cyan-600 hover:border-lime-500 border-2 shadow-md shadow-cyan-600 hover:shadow-lime-600 transition-shadow duration-300 hover:shadow-lg text-white font-semibold rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-10 text-center"
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.95 }}
+                  onClick={supplierRequest}
                 >
-                  Contact Us for More Details
+                  Choose us
                 </motion.button>
               </div>
             </motion.div>
