@@ -143,7 +143,7 @@ export default function DashboardPage() {
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-          <div className="flex items-center p-6 border border-cyan-600 hover:border-lime-500 rounded-xl shadow-md transition-shadow duration-300">
+          <div className="flex items-center p-6 border border-cyan-600 hover:border-lime-500 rounded-xl shadow-md transition-shadow duration-300  shadow-cyan-600 hover:shadow-lime-600  hover:shadow-lg text-white font-semibold  focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-10">
             <FaLeaf className="text-green-700 dark:text-green-400 text-4xl mr-4" />
             <div>
               <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
@@ -155,7 +155,7 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="flex items-center p-6 border border-cyan-600 hover:border-lime-500 rounded-xl shadow-md transition-shadow duration-300">
+          <div className="flex items-center p-6 border border-cyan-600 hover:border-lime-500 rounded-xl shadow-md transition-shadow duration-300  shadow-cyan-600 hover:shadow-lime-600  hover:shadow-lg text-white font-semibold  focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-10">
             <FaLeaf className="text-green-700 dark:text-green-400 text-4xl mr-4" />
             <div>
               <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
@@ -171,7 +171,7 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="flex items-center p-6 border border-cyan-600 hover:border-lime-500 rounded-xl shadow-md transition-shadow duration-300">
+          <div className="flex items-center p-6 border border-cyan-600 hover:border-lime-500 rounded-xl shadow-md transition-shadow duration-300  shadow-cyan-600 hover:shadow-lime-600  hover:shadow-lg text-white font-semibold  focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-10">
             <FaLeaf className="text-green-700 dark:text-green-400 text-4xl mr-4" />
             <div>
               <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
@@ -187,7 +187,7 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="flex items-center justify-between p-6 border border-cyan-600 hover:border-lime-500 rounded-xl shadow-md transition-shadow duration-300">
+          <div className="flex items-center p-6 border border-cyan-600 hover:border-lime-500 rounded-xl shadow-md transition-shadow duration-300  shadow-cyan-600 hover:shadow-lime-600  hover:shadow-lg text-white font-semibold  focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-10">
             <div className="mr-4">
               <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
                 Set Tea Leaf Price
@@ -209,7 +209,7 @@ export default function DashboardPage() {
 
         <div className="flex flex-col items-center justify-center py-6">
           <Link
-            className="w-full lg:w-1/2 px-4 py-2 border-cyan-600 hover:border-lime-500 border-2 shadow-md rounded-lg text-center text-white font-semibold transition duration-300"
+            className="w-full lg:w-1/2 px-4 py-2 border-cyan-600 hover:border-lime-500 border-2 shadow-md shadow-cyan-600 hover:shadow-lime-600 transition-shadow duration-300 hover:shadow-lg text-white font-semibold rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-10 text-center"
             href="/tea-factory/suppliers"
           >
             View Suppliers
