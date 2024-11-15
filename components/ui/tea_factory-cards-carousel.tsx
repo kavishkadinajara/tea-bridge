@@ -224,8 +224,7 @@ export const Card = ({
       setLoading(false);
     };
 
-    initializeData();
-    requestButton();
+    initializeData().then(requestButton);
 
     if (open) {
       document.body.style.overflow = "hidden";
