@@ -14,8 +14,6 @@ import React, {
   useRef,
   useState,
 } from "react";
-// import toast from "react-hot-toast";
-
 import { toast } from "react-toastify";
 
 import "react-toastify/dist/ReactToastify.css";
@@ -53,9 +51,9 @@ export const CarouselContext = createContext<{
 });
 
 export const Carousel = ({ items, initialScroll = 0 }: CarouselProps) => {
-  const carouselRef = React.useRef<HTMLDivElement>(null);
-  const [canScrollLeft, setCanScrollLeft] = React.useState(false);
-  const [canScrollRight, setCanScrollRight] = React.useState(true);
+  const carouselRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
@@ -88,7 +86,7 @@ export const Carousel = ({ items, initialScroll = 0 }: CarouselProps) => {
 
   const handleCardClose = (index: number) => {
     if (carouselRef.current) {
-      const cardWidth = isMobile() ? 230 : 384; // (md:w-96)
+      const cardWidth = isMobile() ? 230 : 384;
       const gap = isMobile() ? 4 : 8;
       const scrollPosition = (cardWidth + gap) * (index + 1);
 
@@ -100,9 +98,7 @@ export const Carousel = ({ items, initialScroll = 0 }: CarouselProps) => {
     }
   };
 
-  const isMobile = () => {
-    return window && window.innerWidth < 768;
-  };
+  const isMobile = () => window && window.innerWidth < 768;
 
   return (
     <CarouselContext.Provider
@@ -111,21 +107,11 @@ export const Carousel = ({ items, initialScroll = 0 }: CarouselProps) => {
       <div className="relative w-full">
         <div
           ref={carouselRef}
-          className="flex w-full overflow-x-scroll overscroll-x-auto py-10 md:py-20 scroll-smooth [scrollbar-width:none]"
+          className="flex w-full overflow-x-scroll py-10 md:py-20 scroll-smooth [scrollbar-width:none]"
           onScroll={checkScrollability}
         >
-          <div
-            className={cn(
-              "absolute right-0  z-[1000] h-auto  w-[5%] overflow-hidden bg-gradient-to-l",
-            )}
-          />
-
-          <div
-            className={cn(
-              "flex flex-row justify-start gap-4 pl-4",
-              "max-w-7xl mx-auto", // remove max-w-4xl if you want the carousel to span the full width of its container
-            )}
-          >
+          <div className="absolute right-0 z-[1000] h-auto w-[5%] overflow-hidden bg-gradient-to-l" />
+          <div className="flex flex-row justify-start gap-4 pl-4 max-w-7xl mx-auto">
             {items.map((item, index) => (
               <motion.div
                 key={"card" + index}
@@ -139,7 +125,7 @@ export const Carousel = ({ items, initialScroll = 0 }: CarouselProps) => {
                     once: true,
                   },
                 }}
-                className="last:pr-[5%] md:last:pr-[33%]  rounded-3xl"
+                className="last:pr-[5%] md:last:pr-[33%] rounded-3xl"
                 initial={{
                   opacity: 0,
                   y: 20,
@@ -184,7 +170,9 @@ export const Card = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const { onCardClose, currentIndex } = useContext(CarouselContext);
   const [userId, setUserId] = useState<string | null>(null);
+  const [userType, setUserType] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [reqButtonText, setReqButtonText] = useState("Choose us");
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
@@ -193,20 +181,51 @@ export const Card = ({
       }
     }
 
+    const requestButton = async () => {
+      const supabase = createClient();
+
+      const { data: supplierRequestStatus, error } = await supabase
+        .from("suppliers_factories")
+        .select("request_status")
+        .eq("supplier_id", userId)
+        .eq("factory_id", card.id);
+
+      if (error) {
+        console.error("Error fetching supplier request status:", error);
+        toast.error("An error occurred while checking request status.");
+
+        return;
+      }
+
+      if (supplierRequestStatus.length > 0) {
+        if (supplierRequestStatus[0].request_status === "Accepted") {
+          setReqButtonText("Your are member of our factory 🎉");
+        }
+        if (supplierRequestStatus[0].request_status === "Pending") {
+          setReqButtonText("Your request is pending... 🕒");
+        }
+        if (supplierRequestStatus[0].request_status === "Rejected") {
+          setReqButtonText("Your request is rejected 😢");
+        }
+      }
+    };
+
     const initializeData = async () => {
       const supabase = createClient();
       const { data } = await supabase.auth.getUser();
 
       if (data.user) {
         setUserId(data.user.id);
+        setUserType(data.user.user_metadata?.userType);
+        console.log("User found" + userType);
       } else {
         console.log("No user found");
       }
       setLoading(false);
     };
 
-    console.log("userId" + userId);
     initializeData();
+    requestButton();
 
     if (open) {
       document.body.style.overflow = "hidden";
@@ -221,9 +240,7 @@ export const Card = ({
 
   useOutsideClick(containerRef, () => handleClose());
 
-  const handleOpen = () => {
-    setOpen(true);
-  };
+  const handleOpen = () => setOpen(true);
 
   const handleClose = () => {
     setOpen(false);
@@ -234,21 +251,18 @@ export const Card = ({
     const supabase = createClient();
 
     if (!userId) {
-      // Display a toast notification to the user
       toast.error("You need to be logged in to perform this action.", {
-        position: "top-right", // Position of the toast
-        autoClose: 1500, // Automatically close after 1.5 seconds
-        hideProgressBar: true, // Hide the progress bar
+        position: "top-right",
+        autoClose: 1500,
+        hideProgressBar: true,
       });
 
-      // Redirect the user to the login page after a delay
       setTimeout(() => {
         window.location.href = "/auth";
       }, 1500);
 
       return;
     } else {
-      // Fetch supplier request status from the database
       const { data: supplierRequestStatus, error } = await supabase
         .from("suppliers_factories")
         .select("request_status")
@@ -256,23 +270,25 @@ export const Card = ({
         .eq("factory_id", card.id);
 
       if (error) {
-        // Log error for debugging purposes
         console.error("Error fetching supplier request status:", error);
-
-        // Notify the user of an error
         toast.error("An error occurred while checking request status.");
 
         return;
       }
 
-      // Log the supplier request status to the console
-      console.log(supplierRequestStatus);
-
-      // Optionally handle the fetched data
       if (supplierRequestStatus?.length === 0) {
-        toast.info("No request status found for this supplier.");
+        const { error: insertError } = await supabase
+          .from("suppliers_factories")
+          .insert([{ supplier_id: userId, factory_id: card.id }]);
+
+        if (insertError) {
+          console.error("Error inserting supplier request:", insertError);
+          toast.error("An error occurred while sending your request.");
+        } else {
+          toast.success("Request sent successfully.");
+        }
       } else {
-        toast.success("Request status fetched successfully.");
+        toast.info("You have already sent a request to this factory.");
       }
     }
   }
@@ -296,7 +312,6 @@ export const Card = ({
               initial={{ opacity: 0, scale: 0.95 }}
               transition={{ duration: 0.5, ease: "easeInOut" }}
             >
-              {/* Close Button */}
               <button
                 className="absolute top-6 right-6 h-12 w-12 bg-black dark:bg-white rounded-full flex items-center justify-center shadow-xl hover:scale-110 hover:shadow-2xl transition-all"
                 onClick={handleClose}
@@ -304,7 +319,6 @@ export const Card = ({
                 <IconX className="h-7 w-7 text-neutral-100 dark:text-neutral-900" />
               </button>
 
-              {/* Factory Info */}
               <motion.h2
                 className="text-4xl md:text-5xl font-extrabold text-neutral-800 dark:text-white text-center tracking-tight"
                 layoutId={
@@ -331,7 +345,6 @@ export const Card = ({
                 transforms into excellence, one sip at a time ☕.
               </motion.p>
 
-              {/* Contact Info */}
               <div className="mt-8 space-y-6">
                 <motion.p className="flex items-center text-lg md:text-xl font-medium text-neutral-700 dark:text-neutral-300">
                   📞{" "}
@@ -347,15 +360,14 @@ export const Card = ({
                   </span>{" "}
                   {card.address}
                 </motion.p>
-                <motion.p className="text-lg md:text-xl font-medium text-neutral-700 dark:text-neutral-300">
-                  <h3 className="text-2xl font-bold text-green-600 dark:text-green-400">
+                <motion.h3 className="text-lg md:text-xl font-medium text-neutral-700 dark:text-neutral-300">
+                  <p className="text-2xl font-bold text-green-600 dark:text-green-400">
                     ☺️ About us
-                  </h3>{" "}
+                  </p>
                   {card.description}
-                </motion.p>
+                </motion.h3>
               </div>
 
-              {/* Services Section */}
               <div className="mt-10">
                 <h3 className="text-2xl font-bold text-green-600 dark:text-green-400">
                   🌟 Our Services
@@ -378,7 +390,6 @@ export const Card = ({
                 </ul>
               </div>
 
-              {/* Image Viewer */}
               <motion.div className="mt-12 relative group">
                 <BlurImage
                   alt={card.factory_name}
@@ -387,11 +398,9 @@ export const Card = ({
                   src={card.profile_photo || "/default-factory.png"}
                   width={500}
                 />
-                {/* Gradient Overlay */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               </motion.div>
 
-              {/* Additional Content */}
               <div className="py-12">
                 <motion.div className="text-lg md:text-xl font-medium text-neutral-700 dark:text-neutral-300 leading-relaxed">
                   {card.content ||
@@ -399,17 +408,18 @@ export const Card = ({
                 </motion.div>
               </div>
 
-              {/* CTA Button */}
-              <div className="text-center">
-                <motion.button
-                  className="w-full lg:w-1/2 px-4 py-2 border-cyan-600 hover:border-lime-500 border-2 shadow-md shadow-cyan-600 hover:shadow-lime-600 transition-shadow duration-300 hover:shadow-lg text-white font-semibold rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-10 text-center"
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={supplierRequest}
-                >
-                  Choose us
-                </motion.button>
-              </div>
+              {userType !== "tea_factory" && (
+                <div className="text-center">
+                  <motion.button
+                    className="w-full lg:w-1/2 px-4 py-2 border-cyan-600 hover:border-lime-500 border-2 shadow-md shadow-cyan-600 hover:shadow-lime-600 transition-shadow duration-300 hover:shadow-lg text-black dark:text-white font-semibold rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-10 text-center text-xl md:text-2xl"
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={supplierRequest}
+                  >
+                    {loading ? "Loading..." : reqButtonText}
+                  </motion.button>
+                </div>
+              )}
             </motion.div>
           </div>
         )}

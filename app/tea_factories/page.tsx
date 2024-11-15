@@ -3,7 +3,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Select, SelectItem } from "@nextui-org/react"; // Ensure SelectItem is imported
+import { Select, SelectItem } from "@nextui-org/react";
 import Image from "next/image";
 import { useTheme } from "next-themes";
 
@@ -15,17 +15,12 @@ export default function TeaFactories() {
   const [selectedTowns, setSelectedTowns] = useState<string[]>([]);
   const [userFactories, setUserFactories] = useState<any[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
-  const [townOptions, setTownOptions] = useState<
-    { value: string; label: string }[]
-  >([]);
+  const [townOptions, setTownOptions] = useState<{ value: string; label: string }[]>([]);
   const [factories, setFactories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [profileData, setProfileData] = useState<any>(null);
-  const [originalProfileData, setOriginalProfileData] = useState<any>(null);
   const [imagePreview, setImagePreview] = useState<string>("");
-  const [services, setServices] = useState<string[]>([]);
 
-  // Fetch user data and initialize
   useEffect(() => {
     const initializeData = async () => {
       const supabase = createClient();
@@ -50,13 +45,12 @@ export default function TeaFactories() {
           data.towns.map((town: string) => ({
             value: town,
             label: town,
-          })),
+          }))
         );
       })
       .catch((error) => console.error("Error fetching towns:", error));
   }, []);
 
-  // Fetch factories based on selected towns
   useEffect(() => {
     if (selectedTowns.length > 0) {
       const fetchFactoriesByTown = async () => {
@@ -75,7 +69,6 @@ export default function TeaFactories() {
     }
   }, [selectedTowns]);
 
-  // Fetch user's town
   const fetchUserTown = async (userId: string) => {
     const supabase = createClient();
 
@@ -100,7 +93,6 @@ export default function TeaFactories() {
     }
   };
 
-  // Fetch factories based on user's town
   const fetchUserFactories = async (userTown: string) => {
     const supabase = createClient();
     const { data: factories } = await supabase
@@ -111,7 +103,6 @@ export default function TeaFactories() {
     setUserFactories(filterFactories(factories || []));
   };
 
-  // Fetch random factories
   const fetchRandomFactories = async () => {
     const supabase = createClient();
     const { data: factories } = await supabase
@@ -126,13 +117,11 @@ export default function TeaFactories() {
     setFactories(shuffledFactories);
   };
 
-  // Filter factories with valid data
   const filterFactories = (factories: any[]) =>
     factories.filter(
-      (factory) => factory.factory_name && factory.tea_leaf_price !== null,
+      (factory) => factory.factory_name && factory.tea_leaf_price !== null
     );
 
-  // Fetch factories based on selected towns
   useEffect(() => {
     const fetchProfile = async () => {
       const supabase = createClient();
@@ -153,21 +142,13 @@ export default function TeaFactories() {
             profilePhoto: data.profileData.profile_photo || "",
             services:
               data.profileData.factory_services?.map(
-                (service: { service: string }) => service.service,
+                (service: { service: string }) => service.service
               ) || [],
           };
 
           console.log(fetchedProfileData);
           setProfileData(fetchedProfileData);
-          setOriginalProfileData(fetchedProfileData);
           setImagePreview(fetchedProfileData.profilePhoto || "");
-
-          // const fetchedServices =
-          //   data.profileData.factory_services?.map(
-          //     (service: { service: string }) => service.service,
-          //   ) || [];
-
-          // setServices(fetchedServices);
         } else {
           console.error(data.error);
         }
@@ -210,7 +191,6 @@ export default function TeaFactories() {
   if (loading) {
     return (
       <div className="h-screen flex flex-col justify-center items-center">
-        {/* Animated Logo */}
         <div className="relative">
           <Image
             alt="Loading logo"
@@ -219,16 +199,11 @@ export default function TeaFactories() {
             src="/logo.png"
             width={150}
           />
-          {/* Subtle Glow Effect */}
-          <div className="absolute inset-0  animate-pulse delay-500 bg-gradient-to-r from-green-400 to-green-600 blur-xl opacity-50 rounded-full" />
+          <div className="absolute inset-0 animate-pulse delay-500 bg-gradient-to-r from-green-400 to-green-600 blur-xl opacity-50 rounded-full" />
         </div>
-
-        {/* Loading Text */}
         <p className="mt-6 text-lg font-medium text-gray-700 dark:text-gray-200">
           Loading, please wait...
         </p>
-
-        {/* Decorative Dots */}
         <div className="flex mt-4 space-x-2">
           <span className="w-3 h-3 bg-green-500 rounded-full animate-bounce" />
           <span className="w-3 h-3 bg-green-600 rounded-full animate-bounce delay-150" />
