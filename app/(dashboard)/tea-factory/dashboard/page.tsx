@@ -210,7 +210,7 @@ export default function DashboardPage() {
         <div className="flex flex-col items-center justify-center py-6">
           <Link
             className="w-full lg:w-1/2 px-4 py-2 border-cyan-600 hover:border-lime-500 border-2 shadow-md rounded-lg text-center text-white font-semibold transition duration-300"
-            href="/suppliers"
+            href="/tea-factory/suppliers"
           >
             View Suppliers
           </Link>
