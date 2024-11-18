@@ -36,6 +36,18 @@ export default function ProfilePage() {
   const supabase = createClient();
 
   useEffect(() => {
+    const fetchSession = async () => {
+      try {
+        const { data } = await supabase.auth.getUser();
+
+        if (data.user) {
+          setUserId(data.user.id || "");
+        }
+      } catch (error) {
+        console.error("Error fetching session: ", error);
+      }
+    };
+    
     const fetchProfile = async () => {
       try {
         const { data: sessionData } = await supabase.auth.getUser();
@@ -73,7 +85,7 @@ export default function ProfilePage() {
       }
     };
 
-    fetchProfile();
+    fetchSession().then(fetchProfile);
 
     fetch("/api/v2/town")
       .then((res) => res.json())
