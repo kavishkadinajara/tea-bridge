@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-console */
 "use client";
 import {
@@ -14,9 +15,17 @@ import React, {
   useRef,
   useState,
 } from "react";
+// eslint-disable-next-line import/order
 import { toast } from "react-toastify";
 
 import "react-toastify/dist/ReactToastify.css";
+import {
+  Alert,
+  AlertTitle,
+  Snackbar,
+  SnackbarCloseReason,
+} from "@mui/material";
+
 import { useOutsideClick } from "@/hooks/use-outside-click";
 import { cn } from "@/lib/utils/cn";
 import { createClient } from "@/lib/utils/supabase/client";
@@ -191,7 +200,6 @@ export const Card = ({
         .eq("factory_id", card.id);
 
       if (error) {
-        console.error("Error fetching supplier request status:", error);
         toast.error("An error occurred while checking request status.");
 
         return;
@@ -217,9 +225,9 @@ export const Card = ({
       if (data.user) {
         setUserId(data.user.id);
         setUserType(data.user.user_metadata?.userType);
-        console.log("User found" + userType);
       } else {
-        console.log("No user found");
+        toast.error("No user found. Please log in.");
+        window.location.href = "/auth";
       }
       setLoading(false);
     };
@@ -269,7 +277,6 @@ export const Card = ({
         .eq("factory_id", card.id);
 
       if (error) {
-        console.error("Error fetching supplier request status:", error);
         toast.error("An error occurred while checking request status.");
 
         return;
@@ -281,7 +288,6 @@ export const Card = ({
           .insert([{ supplier_id: userId, factory_id: card.id }]);
 
         if (insertError) {
-          console.error("Error inserting supplier request:", insertError);
           toast.error("An error occurred while sending your request.");
         } else {
           toast.success("Request sent successfully.");
@@ -410,9 +416,9 @@ export const Card = ({
               {userType !== "tea_factory" && (
                 <div className="text-center">
                   <motion.button
-                    className="w-full lg:w-1/2 px-4 py-2 border-cyan-600 hover:border-lime-500 border-2 shadow-md shadow-cyan-600 hover:shadow-lime-600 transition-shadow duration-300 hover:shadow-lg text-black dark:text-white font-semibold rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-10 text-center text-xl md:text-2xl"
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.95 }}
+                    className="w-full lg:w-1/2 px-4 py-2 border-cyan-600 hover:border-lime-500 border-2 shadow-md shadow-cyan-600 hover:shadow-lime-600 transition-shadow duration-300 hover:shadow-lg text-white font-semibold rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-10 text-center"
+                    // whileHover={{ scale: 1.1 }}
+                    // whileTap={{ scale: 0.95 }}
                     onClick={supplierRequest}
                   >
                     {loading ? "Loading..." : reqButtonText}
@@ -489,3 +495,55 @@ export const BlurImage = ({
     />
   );
 };
+
+const AlertComponent = () => {
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertSeverity, setAlertSeverity] = useState<
+    "success" | "info" | "warning" | "error"
+  >("info");
+
+  const showAlert = (
+    message: string,
+    severity: "success" | "info" | "warning" | "error",
+  ) => {
+    setAlertMessage(message);
+    setAlertSeverity(severity);
+    setAlertOpen(true);
+  };
+
+  const handleAlertClose = (
+    _event: Event | React.SyntheticEvent<any, Event>,
+    reason?: SnackbarCloseReason,
+  ) => {
+    setAlertOpen(false);
+  };
+
+  // Example usage of showAlert function
+  useEffect(() => {
+    showAlert("This is an info alert", "info");
+  }, []);
+
+  return (
+    <>
+      <Snackbar
+        autoHideDuration={6000}
+        open={alertOpen}
+        onClose={handleAlertClose}
+      >
+        <Alert
+          severity={alertSeverity}
+          sx={{ width: "100%" }}
+          onClose={handleAlertClose}
+        >
+          <AlertTitle>
+            {alertSeverity.charAt(0).toUpperCase() + alertSeverity.slice(1)}
+          </AlertTitle>
+          {alertMessage}
+        </Alert>
+      </Snackbar>
+    </>
+  );
+};
+
+export default AlertComponent;
