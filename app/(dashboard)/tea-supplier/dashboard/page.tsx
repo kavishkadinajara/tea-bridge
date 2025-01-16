@@ -24,20 +24,18 @@ import ApplyFertilizer from "@/components/teaProvider/ApplyFertilizer";
 import PastTeaProvidingStatus from "@/components/teaProvider/PastTeaProvidingStatus";
 
 export default function DashboardPage() {
-  const [selectedDate, setSelectedDate] = useState<DateValue>(
-    today(getLocalTimeZone()),
-  );
+  const [selectedDate, setSelectedDate] = useState<DateValue>(today(getLocalTimeZone()));
   const [selectedFactory, setSelectedFactory] = useState<string | null>(null);
 
-  const handleDateChange = (date: DateValue) => {
-    setSelectedDate(date);
-    console.log("Selected Date:", date);
+  const handleDateChange = (date: CalendarDate | null) => {
+    if (date) {
+      setSelectedDate(date);
+      console.log("Selected Date:", date);
+    }
   };
 
   const formatDate = (date: CalendarDate) => {
-    return new Intl.DateTimeFormat("en-GB").format(
-      date.toDate(getLocalTimeZone()),
-    );
+    return new Intl.DateTimeFormat("en-GB").format(date.toDate(getLocalTimeZone()));
   };
 
   const factoryData = [
@@ -57,7 +55,6 @@ export default function DashboardPage() {
           Dashboard
         </h2>
 
-        {/* Current Total Quantity & Last Date Provided */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
           <div className="flex items-center p-6 border border-cyan-600 hover:border-lime-500 rounded-xl shadow-md shadow-cyan-600 hover:shadow-lime-600 transition-shadow duration-300 hover:shadow-lg">
             <FaLeaf className="text-green-700 dark:text-green-400 text-4xl mr-4" />
@@ -97,7 +94,6 @@ export default function DashboardPage() {
           <p className="text-gray-600">View your chosen tea factories</p>
         </header>
 
-        {/* Choose perfect tea factories and your current chosen tea factories */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           <Button
             className="rounded-3xl text-xl font-medium md:text-2xl border-cyan-500 hover:border-lime-600 shadow-md shadow-cyan-400 hover:shadow-lime-500 px-7 md:px-12 py-20 flex flex-col items-center gap-1"
@@ -114,7 +110,6 @@ export default function DashboardPage() {
           </Button>
         </div>
 
-        {/* Factory Selection */}
         <div className="my-12">
           <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">
             Select Your Tea Factory
@@ -139,7 +134,6 @@ export default function DashboardPage() {
 
         {selectedFactory && (
           <>
-            {/* Next Date Picker */}
             <div className="mb-12">
               <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">
                 Next Date You Plan to Provide Tea
@@ -161,14 +155,12 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            {/* Application Buttons */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-20 mb-10">
               <ApplyTeaPowder selectedFactory={selectedFactory} />
               <ApplyAdvance selectedFactory={selectedFactory} />
               <ApplyFertilizer selectedFactory={selectedFactory} />
             </div>
 
-            {/* Past Tea Providing Status */}
             <div className="flex flex-col mb-8">
               <PastTeaProvidingStatus selectedFactory={selectedFactory} />
             </div>
